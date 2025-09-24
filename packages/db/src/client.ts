@@ -1,3 +1,4 @@
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { withReplicas } from "drizzle-orm/pg-core";
 
@@ -14,4 +15,4 @@ const read1 = drizzle({
   schema,
 });
 
-export const db = withReplicas(primary, [read1]);
+export const db: NodePgDatabase<typeof schema> = withReplicas(primary, [read1]);
