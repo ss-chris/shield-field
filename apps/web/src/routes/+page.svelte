@@ -4,12 +4,7 @@
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
-		const res = await client.ok.$get({
-			query: {
-				foo: 'bar'
-			}
-		});
-
+		const res = await client.session.$get();
 		console.log(res);
 	});
 </script>

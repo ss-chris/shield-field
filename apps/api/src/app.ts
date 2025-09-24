@@ -13,7 +13,7 @@ const auth = initAuth({
   microsoftClientId: env.MICROSOFT_CLIENT_ID,
   microsoftClientSecret: env.MICROSOFT_CLIENT_SECRET,
   microsoftTenantId: env.MICROSOFT_TENANT_ID,
-  secret: env.PRIMARY_DATABASE_URL,
+  secret: env.AUTH_SECRET,
 });
 
 export type AppVariables = {
@@ -38,13 +38,16 @@ export const app = new Hono<{
   )
   .use("*", async (c, next) => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
+
     if (!session) {
       c.set("user", null);
       c.set("session", null);
       return next();
     }
+
     c.set("user", session.user);
     c.set("session", session.session);
+
     return next();
   })
   .get(

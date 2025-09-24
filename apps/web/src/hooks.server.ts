@@ -1,11 +1,12 @@
 import { initAuth } from '@safestreets/auth';
+import type { Handle } from '@sveltejs/kit';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { building } from '$app/environment';
 import {
+	AUTH_SECRET,
 	MICROSOFT_CLIENT_ID,
 	MICROSOFT_CLIENT_SECRET,
-	MICROSOFT_TENANT_ID,
-	PRIMARY_DATABASE_URL
+	MICROSOFT_TENANT_ID
 } from '$env/static/private';
 
 const auth = initAuth({
@@ -14,10 +15,10 @@ const auth = initAuth({
 	microsoftClientId: MICROSOFT_CLIENT_ID,
 	microsoftClientSecret: MICROSOFT_CLIENT_SECRET,
 	microsoftTenantId: MICROSOFT_TENANT_ID,
-	secret: PRIMARY_DATABASE_URL
+	secret: AUTH_SECRET
 });
 
-export async function handle({ event, resolve }) {
+export const handle: Handle = async ({ event, resolve }) => {
 	const session = await auth.api.getSession({
 		headers: event.request.headers
 	});
@@ -28,4 +29,4 @@ export async function handle({ event, resolve }) {
 	}
 
 	return svelteKitHandler({ event, resolve, auth, building });
-}
+};
