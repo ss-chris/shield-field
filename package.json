@@ -11,6 +11,8 @@
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
     "auth:generate": "pnpm -F @safestreets/auth generate",
+    "db:generate": "pnpm -F @safestreets/db generate",
+    "db:migrate": "pnpm -F @safestreets/db migrate",
     "db:push": "turbo -F @safestreets/db push",
     "db:studio": "turbo -F @safestreets/db studio",
     "dev": "turbo watch dev --continue",
@@ -33,5 +35,10 @@
     "turbo": "^2.5.6",
     "typescript": "catalog:"
   },
-  "prettier": "@safestreets/prettier-config"
+  "prettier": "@safestreets/prettier-config",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
 }

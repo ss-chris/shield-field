@@ -17,10 +17,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@better-auth/expo": "1.3.8",
+    "@better-auth/expo": "catalog:",
+    "@better-auth/sso": "catalog:",
     "@safestreets/db": "workspace:*",
-    "@t3-oss/env-nextjs": "^0.13.8",
-    "better-auth": "1.3.8",
+    "@t3-oss/env-core": "catalog:",
+    "better-auth": "catalog:",
     "next": "^15.5.2",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
@@ -31,7 +32,6 @@
     "@safestreets/eslint-config": "workspace:*",
     "@safestreets/prettier-config": "workspace:*",
     "@safestreets/tsconfig": "workspace:*",
-    "@types/react": "catalog:react19",
     "eslint": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:"

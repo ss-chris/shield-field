@@ -24,4 +24,5 @@ export const auth = initAuth({
   secret: "secret",
   microsoftClientId: "abcxyz",
   microsoftClientSecret: "abcxyz",
+  microsoftTenantId: "abcxyz",
 });

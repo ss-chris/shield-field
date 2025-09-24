@@ -96,6 +96,17 @@ export const invitation = pgTable("invitation", (t) => ({
   ...baseFields,
 }));
 
+export const ssoProvider = pgTable("sso_provider", (t) => ({
+  id: t.text("id").primaryKey(),
+  issuer: t.text("issuer").notNull(),
+  oidcConfig: t.text("oidc_config"),
+  samlConfig: t.text("saml_config"),
+  userId: t.text("user_id").references(() => user.id, { onDelete: "cascade" }),
+  providerId: t.text("provider_id").notNull().unique(),
+  organizationId: t.text("organization_id"),
+  domain: t.text("domain").notNull(),
+}));
+
 // ============== Relations ==============
 
 export const userRelations = relations(user, ({ many }) => ({

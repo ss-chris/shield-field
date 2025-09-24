@@ -1,13 +1,19 @@
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import z from "zod";
+
 import { initAuth } from "@safestreets/auth";
 
+import { env } from "./env";
+
 const auth = initAuth({
-    baseUrl: 'http://localhost:3000',
-    productionUrl: 'http://shieldfield.com',
-    microsoftClientId: 'abcxyz',
-    microsoftClientSecret: 'abcxyz',
-    secret: ''
+  baseUrl: "http://localhost:5173",
+  productionUrl: "http://localhost:5173",
+  microsoftClientId: env.MICROSOFT_CLIENT_ID,
+  microsoftClientSecret: env.MICROSOFT_CLIENT_SECRET,
+  microsoftTenantId: env.MICROSOFT_TENANT_ID,
+  secret: env.PRIMARY_DATABASE_URL,
 });
 
 export type AppVariables = {
@@ -22,7 +28,7 @@ export const app = new Hono<{
   .use(
     "*",
     cors({
-      origin: "http://localhost:3000", // replace with your origin
+      origin: "http://localhost:5173", // todo
       allowHeaders: ["Content-Type", "Authorization"],
       allowMethods: ["POST", "GET", "OPTIONS", "PATCH", "DELETE"],
       exposeHeaders: ["Content-Length"],
@@ -41,9 +47,13 @@ export const app = new Hono<{
     c.set("session", session.session);
     return next();
   })
-  .get("/ok", (c) => {
-    return c.text("ok");
-  })
+  .get(
+    "/ok",
+    zValidator("query", z.object({ foo: z.enum(["bar", "baz"]) })),
+    (c) => {
+      return c.text("ok");
+    },
+  )
   // todo: would be nice to have this at root path as well but who cares right now
   .on(["POST", "GET"], "/api/auth/*", (c) => {
     return auth.handler(c.req.raw);
@@ -56,3 +66,5 @@ export const app = new Hono<{
 
     return c.json({ session, user });
   });
+
+export type App = typeof app;
