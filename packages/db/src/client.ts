@@ -1,10 +1,18 @@
-import { sql } from "@vercel/postgres";
-import { drizzle } from "drizzle-orm/vercel-postgres";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { withReplicas } from "drizzle-orm/pg-core";
 
 import * as schema from "./schema";
 
-export const db = drizzle({
-  client: sql,
-  schema,
+const primary = drizzle({
+  connection: process.env.PRIMARY_DATABASE_URL ?? "",
   casing: "snake_case",
+  schema,
 });
+const read1 = drizzle({
+  connection: process.env.READ_CLONE_DATABASE_URL ?? "",
+  casing: "snake_case",
+  schema,
+});
+
+export const db: NodePgDatabase<typeof schema> = withReplicas(primary, [read1]);

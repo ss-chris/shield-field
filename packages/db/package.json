@@ -22,23 +22,25 @@
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "dev": "tsc",
     "format": "prettier --check . --ignore-path ../../.gitignore",
+    "generate": "pnpm with-env drizzle-kit generate",
     "lint": "eslint",
+    "migrate": "pnpm with-env drizzle-kit migrate",
     "push": "pnpm with-env drizzle-kit push",
     "studio": "pnpm with-env drizzle-kit studio",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@vercel/postgres": "^0.10.0",
     "drizzle-orm": "^0.44.5",
     "drizzle-zod": "^0.8.3",
+    "pg": "^8.16.3",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@safestreets/eslint-config": "workspace:*",
     "@safestreets/prettier-config": "workspace:*",
     "@safestreets/tsconfig": "workspace:*",
-    "dotenv-cli": "^10.0.0",
+    "dotenv-cli": "catalog:",
     "drizzle-kit": "^0.31.4",
     "eslint": "catalog:",
     "prettier": "catalog:",

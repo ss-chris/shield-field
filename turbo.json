@@ -46,19 +46,13 @@
     }
   },
   "globalEnv": [
-    "POSTGRES_URL",
-    "AUTH_MICROSOFT_ID",
-    "AUTH_MICROSOFT_SECRET",
+    "PRIMARY_DATABASE_URL",
+    "READ_CLONE_DATABASE_URL",
+    "MICROSOFT_CLIENT_ID",
+    "MICROSOFT_CLIENT_SECRET",
+    "MICROSOFT_TENANT_ID",
     "AUTH_REDIRECT_PROXY_URL",
-    "AUTH_SECRET",
-    "PORT"
+    "AUTH_SECRET"
   ],
-  "globalPassThroughEnv": [
-    "NODE_ENV",
-    "CI",
-    "VERCEL",
-    "VERCEL_ENV",
-    "VERCEL_URL",
-    "npm_lifecycle_event"
-  ]
+  "globalPassThroughEnv": ["NODE_ENV", "CI", "npm_lifecycle_event"]
 }

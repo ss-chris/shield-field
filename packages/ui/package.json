@@ -35,7 +35,6 @@
     "@safestreets/prettier-config": "workspace:*",
     "@safestreets/tailwind-config": "workspace:*",
     "@safestreets/tsconfig": "workspace:*",
-    "@types/react": "catalog:react19",
     "eslint": "catalog:",
     "prettier": "catalog:",
     "react": "catalog:react19",
