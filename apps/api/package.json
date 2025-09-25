@@ -14,6 +14,7 @@
     "@hono/zod-validator": "^0.7.3",
     "@safestreets/auth": "workspace:*",
     "hono": "^4.9.8",
+    "prettier": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
