@@ -1,13 +1,14 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 
-import type { AppVariables } from "~/app";
 import {
-  createOperatingHoursPolicyInput,
-  operatingHoursPolicyFiltersInput,
-  updateOperatingHoursPolicyInput,
-} from "~/schema/operatingHoursPolicy";
-import OperatingHoursPolicyService from "~/services/operatingHoursPolicy";
+  insertOperatingHoursPolicySchema,
+  updateOperatingHoursPolicySchema,
+} from "@safestreets/db/schema";
+
+import type { AppVariables } from "../app";
+import { operatingHoursPolicyFiltersInput } from "../schema/operatingHoursPolicy";
+import OperatingHoursPolicyService from "../service/operatingHoursPolicy";
 
 // ---------------------------------------------------------------------------- //
 
@@ -27,7 +28,9 @@ export const operatingHoursPolicyRouter = new Hono<AppEnv>()
       );
       return c.json({ data: result }, 200);
     } catch (error) {
-      console.error(`Failed to get OHP with id - ${id}, ${error}`);
+      console.error(
+        `Failed to get Operating Hours Policy with id - ${id}, ${error}`,
+      );
       return c.json({ message: error }, 500);
     }
   })
@@ -43,28 +46,32 @@ export const operatingHoursPolicyRouter = new Hono<AppEnv>()
           await operatingHoursPolicyService.listOperatingHoursPolicies(filters);
         return c.json({ data: results }, 200);
       } catch (error) {
-        console.error(`Failed to get OHPs, ${error}`);
+        console.error(`Failed to get Operating Hours Policies, ${error}`);
         return c.json({ message: error }, 500);
       }
     },
   )
 
-  .post("/", zValidator("json", createOperatingHoursPolicyInput), async (c) => {
-    const ohp = c.req.valid("json");
+  .post(
+    "/",
+    zValidator("json", insertOperatingHoursPolicySchema),
+    async (c) => {
+      const ohp = c.req.valid("json");
 
-    try {
-      const result =
-        await operatingHoursPolicyService.createOperatingHoursPolicy(ohp);
-      return c.json({ data: result }, 200);
-    } catch (error) {
-      console.error(`Failed to create OHP, ${error}`);
-      return c.json({ message: error }, 500);
-    }
-  })
+      try {
+        const result =
+          await operatingHoursPolicyService.createOperatingHoursPolicy(ohp);
+        return c.json({ data: result }, 200);
+      } catch (error) {
+        console.error(`Failed to create Operating Hours Policy, ${error}`);
+        return c.json({ message: error }, 500);
+      }
+    },
+  )
 
   .patch(
     "/:id",
-    zValidator("json", updateOperatingHoursPolicyInput),
+    zValidator("json", updateOperatingHoursPolicySchema),
     async (c) => {
       const id = c.req.param("id");
       const updates = c.req.valid("json");
@@ -77,7 +84,9 @@ export const operatingHoursPolicyRouter = new Hono<AppEnv>()
           );
         return c.json({ data: result }, 200);
       } catch (error) {
-        console.error(`Failed to update OHP with id ${id}, ${error}`);
+        console.error(
+          `Failed to update Operating Hours Policy with id ${id}, ${error}`,
+        );
         return c.json({ message: error }, 500);
       }
     },
@@ -89,7 +98,9 @@ export const operatingHoursPolicyRouter = new Hono<AppEnv>()
     try {
       await operatingHoursPolicyService.deleteOperatingHoursPolicy(Number(id));
     } catch (error) {
-      console.error(`Failed to delete OHP with id ${id}, ${error}`);
+      console.error(
+        `Failed to delete Operating Hours Policy with id ${id}, ${error}`,
+      );
       return c.json({ message: error }, 500);
     }
   });

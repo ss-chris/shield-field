@@ -1,40 +1,42 @@
-import { db } from "@acme/db/client";
-import {
-  OperatingHoursPolicy,
-  OperatingHoursPolicyInsert,
-} from "@acme/db/schema";
 import { and, eq } from "drizzle-orm";
 
-import { operatingHoursPolicyFilters } from "~/schema/operatingHoursPolicy";
+import type {
+  InsertOperatingHoursPolicy,
+  UpdateOperatingHoursPolicy,
+} from "@safestreets/db/schema";
+import { db } from "@safestreets/db/client";
+import { operatingHoursPolicy } from "@safestreets/db/schema";
+
+import type { operatingHoursPolicyFilters } from "../schema/operatingHoursPolicy";
 
 class OperatingHoursPolicyService {
   async getOperatingHoursPolicy(id: number) {
     const [result] = await db
       .select()
-      .from(OperatingHoursPolicy)
-      .where(eq(OperatingHoursPolicy.id, id));
+      .from(operatingHoursPolicy)
+      .where(eq(operatingHoursPolicy.id, id));
 
     if (!result) {
-      throw new Error(`OHP with id ${id} not found`);
+      throw new Error(`Operating Hours Policy with id ${id} not found`);
     }
 
     return result;
   }
 
-  async listOperatingHoursPolicies(filters?: operatingHoursPolicyFilters) {
+  async listOperatingHoursPolicies(filters: operatingHoursPolicyFilters) {
     let conditions = [];
-    conditions.push(eq(OperatingHoursPolicy.organizationId, 1));
+    conditions.push(eq(operatingHoursPolicy.organizationId, "1"));
 
-    return db.query.OperatingHoursPolicy.findMany({
+    return db.query.operatingHoursPolicy.findMany({
       limit: filters.limit ?? 50,
       offset: filters.offset ?? 0,
       where: and(...conditions),
     });
   }
 
-  async createOperatingHoursPolicy(ohp: OperatingHoursPolicyInsert) {
+  async createOperatingHoursPolicy(ohp: InsertOperatingHoursPolicy) {
     const [result] = await db
-      .insert(OperatingHoursPolicy)
+      .insert(operatingHoursPolicy)
       .values(ohp)
       .returning();
     return result;
@@ -42,16 +44,16 @@ class OperatingHoursPolicyService {
 
   async updateOperatingHoursPolicy(
     id: number,
-    updates: Partial<OperatingHoursPolicyInsert>,
+    ohp: UpdateOperatingHoursPolicy,
   ) {
     const [result] = await db
-      .update(OperatingHoursPolicy)
-      .set(updates)
-      .where(eq(OperatingHoursPolicy.id, id))
+      .update(operatingHoursPolicy)
+      .set(ohp)
+      .where(eq(operatingHoursPolicy.id, id))
       .returning();
 
     if (!result) {
-      throw new Error(`OHP with id ${id} not found`);
+      throw new Error(`Operating Hours Policy with id ${id} not found`);
     }
 
     return result;
@@ -59,12 +61,12 @@ class OperatingHoursPolicyService {
 
   async deleteOperatingHoursPolicy(id: number) {
     const [result] = await db
-      .delete(OperatingHoursPolicy)
-      .where(eq(OperatingHoursPolicy.id, id))
+      .delete(operatingHoursPolicy)
+      .where(eq(operatingHoursPolicy.id, id))
       .returning();
 
     if (!result) {
-      throw new Error(`OHP with id ${id} not found`);
+      throw new Error(`Operating Hours Policy with id ${id} not found`);
     }
 
     return result;

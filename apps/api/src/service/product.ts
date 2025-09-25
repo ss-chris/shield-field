@@ -1,18 +1,12 @@
-import { db } from "@acme/db/client";
-import { Product, WarehouseProduct } from "@acme/db/schema";
-import { and, eq } from "drizzle-orm";
+import { db } from "@safestreets/db/client";
 
-import { productFilters } from "~/schema/product";
+import type { productFilters } from "../schema/product";
 
 class ProductService {
   async listProducts(filters: productFilters) {
-    let conditions = [];
-    conditions.push(eq(Product.organizationId, 1));
-
-    return db.query.Product.findMany({
+    return db.query.product.findMany({
       limit: filters.limit ?? 50,
       offset: filters.offset ?? 0,
-      where: and(...conditions),
     });
   }
 }

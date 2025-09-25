@@ -1,30 +1,32 @@
-import { db } from "@acme/db/client";
-import {
-  CreatePurchaseOrderLineItemType,
-  CreatePurchaseOrderShipmentTrackingEventType,
-  CreatePurchaseOrderShipmentType,
-  CreatePurchaseOrderType,
-  CreateWarehouseProductTransactionType,
-  CreateWarehouseProductType,
-  CreateWarehouseType,
-  FieldUserWarehouse,
-  PurchaseOrder,
-  PurchaseOrderLineItem,
-  PurchaseOrderShipment,
-  PurchaseOrderShipmentTrackingEvent,
-  PurchaseOrderType,
-  UpdatePurchaseOrderLineItemType,
-  UpdatePurchaseOrderShipmentType,
-  UpdatePurchaseOrderType,
-  UpdateWarehouseType,
-  Warehouse,
-  WarehouseProduct,
-  WarehouseProductTransaction,
-  wptTypeEnum,
-} from "@acme/db/schema";
 import { and, eq, inArray, or } from "drizzle-orm";
 
+import type {
+  InsertPurchaseOrder,
+  InsertPurchaseOrderLineItem,
+  InsertPurchaseOrderShipment,
+  InsertPurchaseOrderShipmentTrackingEvent,
+  InsertWarehouse,
+  InsertWarehouseProduct,
+  InsertWarehouseProductTransaction,
+  SelectPurchaseOrder,
+  UpdatePurchaseOrder,
+  UpdatePurchaseOrderLineItem,
+  UpdatePurchaseOrderShipment,
+  UpdateWarehouse,
+  warehouseProductTransactionTypeEnum,
+} from "@safestreets/db/schema";
+import { db } from "@safestreets/db/client";
 import {
+  purchaseOrder,
+  purchaseOrderLineItem,
+  purchaseOrderShipment,
+  purchaseOrderShipmentTrackingEvent,
+  warehouse,
+  warehouseProduct,
+  warehouseProductTransaction,
+} from "@safestreets/db/schema";
+
+import type {
   posteFilters,
   purchaseOrderFilters,
   purchaseOrderLineItemFilters,
@@ -32,26 +34,19 @@ import {
   warehouseFilters,
   warehouseProductFilters,
   warehouseProductTransactionFilters,
-} from "~/schema/inventory";
+} from "../schema/inventory";
 
 class InventoryService {
   async listWarehouses(filters: warehouseFilters) {
     let conditions = [];
     if (filters.type) {
-      conditions.push(eq(Warehouse.type, filters.type));
+      conditions.push(eq(warehouse.type, filters.type));
     }
     if (filters.id) {
-      conditions.push(eq(Warehouse.id, filters.id));
-    }
-    if (filters.userId) {
-      const fuWarehouses = await db
-        .select()
-        .from(FieldUserWarehouse)
-        .where(eq(FieldUserWarehouse.userId, filters.userId));
-      conditions.push(eq(Warehouse.id, fuWarehouses[0].warehouseId));
+      conditions.push(eq(warehouse.id, filters.id));
     }
 
-    return db.query.Warehouse.findMany({
+    return db.query.warehouse.findMany({
       limit: filters.limit ?? 50,
       offset: filters.offset ?? 0,
       where: and(...conditions),
@@ -61,8 +56,8 @@ class InventoryService {
   async getWarehouse(id: number) {
     const [result] = await db
       .select()
-      .from(Warehouse)
-      .where(eq(Warehouse.id, id));
+      .from(warehouse)
+      .where(eq(warehouse.id, id));
 
     if (!result) {
       throw new Error(`Warehouse with id ${id} not found`);
@@ -71,16 +66,16 @@ class InventoryService {
     return result;
   }
 
-  async createWarehouse(warehouse: CreateWarehouseType) {
-    const [result] = await db.insert(Warehouse).values(warehouse).returning();
+  async createWarehouse(w: InsertWarehouse) {
+    const [result] = await db.insert(warehouse).values(w).returning();
     return result;
   }
 
-  async updateWarehouse(warehouse: UpdateWarehouseType, id: number) {
+  async updateWarehouse(w: UpdateWarehouse, id: number) {
     const [result] = await db
-      .update(Warehouse)
+      .update(warehouse)
       .set(warehouse)
-      .where(eq(Warehouse.id, id))
+      .where(eq(warehouse.id, id))
       .returning();
 
     if (!result) {
@@ -95,25 +90,22 @@ class InventoryService {
   async listWarehouseProducts(filters: warehouseProductFilters) {
     let conditions = [];
     if (filters.id) {
-      conditions.push(eq(Warehouse.id, filters.id));
+      conditions.push(eq(warehouse.id, filters.id));
     }
     if (filters.warehouseId) {
-      conditions.push(eq(WarehouseProduct.warehouseId, filters.warehouseId));
+      conditions.push(eq(warehouseProduct.warehouseId, filters.warehouseId));
     }
     if (filters.productId) {
-      conditions.push(eq(WarehouseProduct.productId, filters.productId));
+      conditions.push(eq(warehouseProduct.productId, filters.productId));
     }
 
-    return db.query.WarehouseProduct.findMany({
+    return db.query.warehouseProduct.findMany({
       where: and(...conditions),
     });
   }
 
-  async createWarehouseProduct(warehouseProduct: CreateWarehouseProductType) {
-    const [result] = await db
-      .insert(WarehouseProduct)
-      .values(warehouseProduct)
-      .returning();
+  async createWarehouseProduct(wp: InsertWarehouseProduct) {
+    const [result] = await db.insert(warehouseProduct).values(wp).returning();
     return result;
   }
 
@@ -124,34 +116,34 @@ class InventoryService {
   ) {
     let conditions = [];
     if (filters.id) {
-      conditions.push(eq(WarehouseProductTransaction.id, filters.id));
+      conditions.push(eq(warehouseProductTransaction.id, filters.id));
     }
     if (filters.warehouseId) {
       conditions.push(
         or(
           eq(
-            WarehouseProductTransaction.sourceWarehouseId,
+            warehouseProductTransaction.sourceWarehouseId,
             filters.warehouseId,
           ),
           eq(
-            WarehouseProductTransaction.destinationWarehouseId,
+            warehouseProductTransaction.destinationWarehouseId,
             filters.warehouseId,
           ),
         ),
       );
     }
 
-    return db.query.WarehouseProductTransaction.findMany({
+    return db.query.warehouseProductTransaction.findMany({
       where: and(...conditions),
     });
   }
 
   async createWarehouseProductTransaction(
-    warehouseProductTransaction: CreateWarehouseProductTransactionType,
+    wpt: InsertWarehouseProductTransaction,
   ) {
     const [result] = await db
-      .insert(WarehouseProductTransaction)
-      .values(warehouseProductTransaction)
+      .insert(warehouseProductTransaction)
+      .values(wpt)
       .returning();
     return result;
   }
@@ -161,58 +153,52 @@ class InventoryService {
   async listPurchaseOrders(filters: purchaseOrderFilters) {
     let conditions = [];
     if (filters.id) {
-      conditions.push(eq(PurchaseOrder.id, filters.id));
+      conditions.push(eq(purchaseOrder.id, filters.id));
     }
     if (filters.statuses) {
-      conditions.push(inArray(PurchaseOrder.status, filters.statuses));
+      conditions.push(inArray(purchaseOrder.status, filters.statuses));
     }
     if (filters.type) {
-      conditions.push(eq(PurchaseOrder.type, filters.type));
+      conditions.push(eq(purchaseOrder.type, filters.type));
     }
     if (filters.warehouseId) {
       conditions.push(
         or(
-          eq(PurchaseOrder.sourceWarehouseId, filters.warehouseId),
-          eq(PurchaseOrder.destinationWarehouseId, filters.warehouseId),
+          eq(purchaseOrder.sourceWarehouseId, filters.warehouseId),
+          eq(purchaseOrder.destinationWarehouseId, filters.warehouseId),
         ),
       );
     }
     if (filters.parentPurchaseOrderId) {
       conditions.push(
-        eq(PurchaseOrder.parentPurchaseOrderId, filters.parentPurchaseOrderId),
+        eq(purchaseOrder.parentPurchaseOrderId, filters.parentPurchaseOrderId),
       );
     }
 
-    return db.query.PurchaseOrder.findMany({
+    return db.query.purchaseOrder.findMany({
       where: and(...conditions),
     });
   }
 
-  async createPurchaseOrder(purchaseOrder: CreatePurchaseOrderType) {
-    const [result] = await db
-      .insert(PurchaseOrder)
-      .values(purchaseOrder)
-      .returning();
+  async createPurchaseOrder(po: InsertPurchaseOrder) {
+    const [result] = await db.insert(purchaseOrder).values(po).returning();
     return result;
   }
 
-  async bulkCreatePurchaseOrder(pos: CreatePurchaseOrderType[]) {
-    return db.insert(PurchaseOrder).values(pos).returning();
+  async bulkCreatePurchaseOrder(pos: InsertPurchaseOrder[]) {
+    return db.insert(purchaseOrder).values(pos).returning();
   }
 
-  async updatePurchaseOrder(
-    purchaseOrder: UpdatePurchaseOrderType,
-    id: number,
-  ) {
+  async updatePurchaseOrder(po: UpdatePurchaseOrder, id: number) {
     const [previous] = await db
       .select()
-      .from(PurchaseOrder)
-      .where(eq(PurchaseOrder.id, id));
+      .from(purchaseOrder)
+      .where(eq(purchaseOrder.id, id));
 
     const [result] = await db
-      .update(PurchaseOrder)
-      .set(purchaseOrder)
-      .where(eq(PurchaseOrder.id, id))
+      .update(purchaseOrder)
+      .set(po)
+      .where(eq(purchaseOrder.id, id))
       .returning();
 
     if (!result) {
@@ -229,7 +215,7 @@ class InventoryService {
     return result;
   }
 
-  async processPOCompletion(po: PurchaseOrderType) {
+  async processPOCompletion(po: SelectPurchaseOrder) {
     if (!po.sourceWarehouseId) {
       throw new Error(
         "Attempted to create a purchase order with no source warehouse",
@@ -239,26 +225,26 @@ class InventoryService {
     // get current warehouse products
     const polis = await db
       .select()
-      .from(PurchaseOrderLineItem)
-      .where(eq(PurchaseOrderLineItem.purchaseOrderId, po.id));
+      .from(purchaseOrderLineItem)
+      .where(eq(purchaseOrderLineItem.purchaseOrderId, po.id));
     const [sourceWarehouse] = await db
       .select()
-      .from(Warehouse)
-      .where(eq(Warehouse.id, po.sourceWarehouseId));
+      .from(warehouse)
+      .where(eq(warehouse.id, po.sourceWarehouseId));
     const [destinationWarehouse] = await db
       .select()
-      .from(Warehouse)
-      .where(eq(Warehouse.id, po.destinationWarehouseId));
+      .from(warehouse)
+      .where(eq(warehouse.id, po.destinationWarehouseId));
     const sourceWarehouseProducts = await db
       .select()
-      .from(WarehouseProduct)
-      .where(eq(WarehouseProduct.warehouseId, po.sourceWarehouseId));
+      .from(warehouseProduct)
+      .where(eq(warehouseProduct.warehouseId, po.sourceWarehouseId));
     const destinationWarehouseProducts = await db
       .select()
-      .from(WarehouseProduct)
-      .where(eq(WarehouseProduct.warehouseId, po.destinationWarehouseId));
+      .from(warehouseProduct)
+      .where(eq(warehouseProduct.warehouseId, po.destinationWarehouseId));
 
-    let transactionType: (typeof wptTypeEnum.enumValues)[number];
+    let transactionType: (typeof warehouseProductTransactionTypeEnum.enumValues)[number];
     switch (sourceWarehouse.type) {
       case "individual":
       case "warehouse":
@@ -296,7 +282,7 @@ class InventoryService {
           updateWarehouseProducts.push(destinationWarehouseProduct);
         }
       } else {
-        const wp: CreateWarehouseProductType = {
+        const wp: InsertWarehouseProduct = {
           warehouseId: po.destinationWarehouseId,
           onHandQuantity: poli.quantityReceived,
           desiredQuantity: poli.quantityOrdered,
@@ -310,7 +296,7 @@ class InventoryService {
       if (transactionType === "return") {
         quantity = -quantity;
       }
-      const wpt: CreateWarehouseProductTransactionType = {
+      const wpt: InsertWarehouseProductTransaction = {
         type: transactionType,
         quantity: quantity,
         productId: poli.productId,
@@ -336,18 +322,18 @@ class InventoryService {
 
     return db.transaction(async (tx) => {
       if (createWarehouseProducts.length > 0) {
-        await tx.insert(WarehouseProduct).values(createWarehouseProducts);
+        await tx.insert(warehouseProduct).values(createWarehouseProducts);
       }
       if (createWarehouseProductTransactions.length > 0) {
         await tx
-          .insert(WarehouseProductTransaction)
+          .insert(warehouseProductTransaction)
           .values(createWarehouseProductTransactions);
       }
       for (const wp of wpMap) {
         await tx
-          .update(WarehouseProduct)
+          .update(warehouseProduct)
           .set(wp[1])
-          .where(eq(WarehouseProduct.id, wp[0]));
+          .where(eq(warehouseProduct.id, wp[0]));
       }
       console.log(
         `[Inventory Process] created ${createWarehouseProducts.length} WPs, ${createWarehouseProductTransactions.length} WPTs, updated ${wpMap.size} WPs`,
@@ -360,38 +346,33 @@ class InventoryService {
   async listPurchaseOrderLineItems(filters: purchaseOrderLineItemFilters) {
     let conditions = [];
     if (filters.id) {
-      conditions.push(eq(PurchaseOrderLineItem.id, filters.id));
+      conditions.push(eq(purchaseOrderLineItem.id, filters.id));
     }
     if (filters.purchaseOrderIds) {
       conditions.push(
         inArray(
-          PurchaseOrderLineItem.purchaseOrderId,
+          purchaseOrderLineItem.purchaseOrderId,
           filters.purchaseOrderIds,
         ),
       );
     }
 
-    return db.query.PurchaseOrderLineItem.findMany({
+    return db.query.purchaseOrderLineItem.findMany({
       where: and(...conditions),
     });
   }
 
-  async createPurchaseOrderLineItems(
-    purchaseOrderLineItems: CreatePurchaseOrderLineItemType[],
-  ) {
-    return db
-      .insert(PurchaseOrderLineItem)
-      .values(purchaseOrderLineItems)
-      .returning();
+  async createPurchaseOrderLineItems(polis: InsertPurchaseOrderLineItem[]) {
+    return db.insert(purchaseOrderLineItem).values(polis).returning();
   }
 
   async updatePurchaseOrderLineItems(
-    purchaseOrderLineItems: UpdatePurchaseOrderLineItemType[],
+    purchaseOrderLineItems: UpdatePurchaseOrderLineItem[],
   ) {
     let map = new Map(
       purchaseOrderLineItems.map(({ id, ...nonIdOnj }) => [id, nonIdOnj]),
     );
-    let updates: UpdatePurchaseOrderLineItemType[] = [];
+    let updates: UpdatePurchaseOrderLineItem[] = [];
     await db.transaction(async (tx) => {
       for (const item of map) {
         if (!item[0]) {
@@ -400,9 +381,9 @@ class InventoryService {
           );
         }
         const [result] = await tx
-          .update(PurchaseOrderLineItem)
+          .update(purchaseOrderLineItem)
           .set(item[1])
-          .where(eq(PurchaseOrderLineItem.id, item[0]))
+          .where(eq(purchaseOrderLineItem.id, item[0]))
           .returning();
         updates.push(result);
       }
@@ -415,37 +396,35 @@ class InventoryService {
   async listPurchaseOrderShipments(filters: purchaseOrderShipmentFilters) {
     let conditions = [];
     if (filters.id) {
-      conditions.push(eq(PurchaseOrderShipment.id, filters.id));
+      conditions.push(eq(purchaseOrderShipment.id, filters.id));
     }
     if (filters.purchaseOrderId) {
       conditions.push(
-        eq(PurchaseOrderShipment.purchaseOrderId, filters.purchaseOrderId),
+        eq(purchaseOrderShipment.purchaseOrderId, filters.purchaseOrderId),
       );
     }
 
-    return db.query.PurchaseOrderShipment.findMany({
+    return db.query.purchaseOrderShipment.findMany({
       where: and(...conditions),
     });
   }
 
-  async createPurchaseOrderShipment(
-    purchaseOrderShipment: CreatePurchaseOrderShipmentType,
-  ) {
+  async createPurchaseOrderShipment(pos: InsertPurchaseOrderShipment) {
     const [result] = await db
-      .insert(PurchaseOrderShipment)
-      .values(purchaseOrderShipment)
+      .insert(purchaseOrderShipment)
+      .values(pos)
       .returning();
     return result;
   }
 
   async updatePurchaseOrderShipment(
-    purchaseOrderShipment: UpdatePurchaseOrderShipmentType,
+    pos: UpdatePurchaseOrderShipment,
     id: number,
   ) {
     const [result] = await db
-      .update(PurchaseOrderShipment)
-      .set(purchaseOrderShipment)
-      .where(eq(PurchaseOrderShipment.id, id))
+      .update(purchaseOrderShipment)
+      .set(pos)
+      .where(eq(purchaseOrderShipment.id, id))
       .returning();
 
     if (!result) {
@@ -460,27 +439,27 @@ class InventoryService {
   async listPurchaseOrderShipmentTrackingEvents(filters: posteFilters) {
     let conditions = [];
     if (filters.id) {
-      conditions.push(eq(PurchaseOrderShipmentTrackingEvent.id, filters.id));
+      conditions.push(eq(purchaseOrderShipmentTrackingEvent.id, filters.id));
     }
     if (filters.purchaseOrderShipmentId) {
       conditions.push(
         eq(
-          PurchaseOrderShipmentTrackingEvent.purchaseOrderShipmentId,
+          purchaseOrderShipmentTrackingEvent.purchaseOrderShipmentId,
           filters.purchaseOrderShipmentId,
         ),
       );
     }
 
-    return db.query.PurchaseOrderShipmentTrackingEvent.findMany({
+    return db.query.purchaseOrderShipmentTrackingEvent.findMany({
       where: and(...conditions),
     });
   }
 
   async createPurchaseOrderShipmentTrackingEvent(
-    poste: CreatePurchaseOrderShipmentTrackingEventType,
+    poste: InsertPurchaseOrderShipmentTrackingEvent,
   ) {
     const [result] = await db
-      .insert(PurchaseOrderShipmentTrackingEvent)
+      .insert(purchaseOrderShipmentTrackingEvent)
       .values(poste)
       .returning();
     return result;

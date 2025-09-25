@@ -1,16 +1,13 @@
-import { db } from "@acme/db/client";
-import {
-  CreateTerritorySchema,
-  Territory,
-  UpdateTerritorySchema,
-} from "@acme/db/schema";
 import { zValidator } from "@hono/zod-validator";
-import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { z } from "zod";
 
-import TerritoryService from "~/services/territory";
+import {
+  insertTerritorySchema,
+  updateTerritorySchema,
+} from "@safestreets/db/schema";
+
 import { territoryFiltersInput } from "../schema/territory";
+import TerritoryService from "../service/territory";
 
 const territoryService = new TerritoryService();
 
@@ -39,11 +36,11 @@ export const territoryRouter = new Hono()
     }
   })
 
-  .post("/", zValidator("json", createSchedulingPolicyInput), async (c) => {
-    const policy = c.req.valid("json");
+  .post("/", zValidator("json", insertTerritorySchema), async (c) => {
+    const territory = c.req.valid("json");
 
     try {
-      const result = await territoryService.createTerritory(policy);
+      const result = await territoryService.createTerritory(territory);
       return c.json({ data: result }, 200);
     } catch (error) {
       console.error(`Failed to create Territory, ${error}`);
@@ -51,14 +48,14 @@ export const territoryRouter = new Hono()
     }
   })
 
-  .patch("/:id", zValidator("json", updateSchedulingPolicyInput), async (c) => {
+  .patch("/:id", zValidator("json", updateTerritorySchema), async (c) => {
     const id = c.req.param("id");
-    const updates = c.req.valid("json");
+    const territory = c.req.valid("json");
 
     try {
       const result = await territoryService.updateTerritory(
         Number(id),
-        updates,
+        territory,
       );
       return c.json({ data: result }, 200);
     } catch (error) {

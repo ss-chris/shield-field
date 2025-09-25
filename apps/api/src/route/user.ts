@@ -2,8 +2,10 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import z from "zod";
 
-import { userFiltersInput } from "~/schema/user";
-import UserService from "~/services/user";
+import { insertUserSchema, updateUserSchema } from "@safestreets/db/schema";
+
+import { userFiltersInput } from "../schema/user";
+import UserService from "../service/user";
 
 const userService = new UserService();
 
@@ -34,7 +36,7 @@ export const userRouter = new Hono()
     const id = c.req.param("id");
 
     try {
-      const result = await userService.getUser(Number(id));
+      const result = await userService.getUser(id);
       return c.json({ data: result }, 200);
     } catch (error) {
       console.error(`Failed to get User with id - ${id}, ${error}`);
@@ -54,7 +56,7 @@ export const userRouter = new Hono()
     }
   })
 
-  .post("/", zValidator("json", createSchedulingPolicyInput), async (c) => {
+  .post("/", zValidator("json", insertUserSchema), async (c) => {
     const policy = c.req.valid("json");
 
     try {
@@ -66,12 +68,12 @@ export const userRouter = new Hono()
     }
   })
 
-  .patch("/:id", zValidator("json", updateSchedulingPolicyInput), async (c) => {
+  .patch("/:id", zValidator("json", updateUserSchema), async (c) => {
     const id = c.req.param("id");
     const updates = c.req.valid("json");
 
     try {
-      const result = await userService.updateUser(Number(id), updates);
+      const result = await userService.updateUser(id, updates);
       return c.json({ data: result }, 200);
     } catch (error) {
       console.error(`Failed to update User with id ${id}, ${error}`);
@@ -83,7 +85,7 @@ export const userRouter = new Hono()
     const id = c.req.param("id");
 
     try {
-      await userService.deleteUser(Number(id));
+      await userService.deleteUser(id);
     } catch (error) {
       console.error(`Failed to delete User with id ${id}, ${error}`);
       return c.json({ message: error }, 500);

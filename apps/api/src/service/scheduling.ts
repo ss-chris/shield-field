@@ -1,4 +1,4 @@
-import { db } from "@acme/db/client";
+import { db } from "@safestreets/db/client";
 
 interface OperatingHoursRule {
   dayOfWeek: number;
@@ -134,7 +134,7 @@ export class SchedulingService {
     success: boolean;
     nextSlot?: Date;
   }> {
-    const schedulingPolicy = await db.query.SchedulingPolicy.findFirst({
+    const schedulingPolicy = await db.query.schedulingPolicy.findFirst({
       with: {
         arrivalWindowTemplate: true,
         operatingHoursPolicy: {
@@ -162,7 +162,7 @@ export class SchedulingService {
   }
 
   static async getSlots() {
-    const schedulingPolicy = await db.query.SchedulingPolicy.findFirst({
+    const schedulingPolicy = await db.query.schedulingPolicy.findFirst({
       with: {
         arrivalWindowTemplate: true,
         operatingHoursPolicy: {

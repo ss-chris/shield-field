@@ -1,13 +1,13 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 
-import type { AppVariables } from "~/app";
+import type { AppVariables } from "../app";
 import {
-  arrivalWindowTemplateFiltersInput,
-  createArrivalWindowTemplateInput,
-  updateArrivalWindowTemplateInput,
-} from "~/schema/arrivalWindowTemplate";
-import ArrivalWindowTemplateService from "~/services/arrivalWindowTemplate";
+  insertArrivalWindowTemplateSchema,
+  updateArrivalWindowTemplateSchema,
+} from "../../../../packages/db/src/schematics/scheduling";
+import { arrivalWindowTemplateFiltersInput } from "../schema/arrivalWindowTemplate";
+import ArrivalWindowTemplateService from "../service/arrivalWindowTemplate";
 
 // ---------------------------------------------------------------------------- //
 
@@ -26,7 +26,9 @@ export const arrivalWindowTemplateRouter = new Hono<AppEnv>()
         await arrivalWindowTemplateService.getArrivalWindowTemplate(Number(id));
       return c.json({ data: result }, 200);
     } catch (error) {
-      console.error(`Failed to get AWT with id - ${id}, ${error}`);
+      console.error(
+        `Failed to get Arrival Window Template with id - ${id}, ${error}`,
+      );
       return c.json({ message: error }, 500);
     }
   })
@@ -44,7 +46,7 @@ export const arrivalWindowTemplateRouter = new Hono<AppEnv>()
           );
         return c.json({ data: results }, 200);
       } catch (error) {
-        console.error(`Failed to list AWTs, ${error}`);
+        console.error(`Failed to list Arrival Window Templates, ${error}`);
         return c.json({ message: error }, 500);
       }
     },
@@ -52,7 +54,7 @@ export const arrivalWindowTemplateRouter = new Hono<AppEnv>()
 
   .post(
     "/",
-    zValidator("json", createArrivalWindowTemplateInput),
+    zValidator("json", insertArrivalWindowTemplateSchema),
     async (c) => {
       const template = c.req.valid("json");
 
@@ -63,7 +65,7 @@ export const arrivalWindowTemplateRouter = new Hono<AppEnv>()
           );
         return c.json({ data: result }, 200);
       } catch (error) {
-        console.error(`Failed to create AWT, ${error}`);
+        console.error(`Failed to create Arrival Window Template, ${error}`);
         return c.json({ message: error }, 500);
       }
     },
@@ -71,7 +73,7 @@ export const arrivalWindowTemplateRouter = new Hono<AppEnv>()
 
   .patch(
     "/:id",
-    zValidator("json", updateArrivalWindowTemplateInput),
+    zValidator("json", updateArrivalWindowTemplateSchema),
     async (c) => {
       const id = c.req.param("id");
       const updates = c.req.valid("json");
@@ -84,7 +86,9 @@ export const arrivalWindowTemplateRouter = new Hono<AppEnv>()
           );
         return c.json({ data: result }, 200);
       } catch (error) {
-        console.error(`Failed to update AWT, ${error}`);
+        console.error(
+          `Failed to update Arrival Window Template with id ${id}, ${error}`,
+        );
         return c.json({ message: error }, 500);
       }
     },
@@ -98,7 +102,9 @@ export const arrivalWindowTemplateRouter = new Hono<AppEnv>()
         Number(id),
       );
     } catch (error) {
-      console.error(`Failed to delete AWT with id - ${id}, ${error}`);
+      console.error(
+        `Failed to delete Arrival Window Template with id - ${id}, ${error}`,
+      );
       return c.json({ message: error }, 500);
     }
   });

@@ -1,6 +1,8 @@
-import { db } from "@acme/db/client";
-import { Territory, territoryInsert } from "@acme/db/schema";
 import { and, eq } from "drizzle-orm";
+
+import type { InsertTerritory, UpdateTerritory } from "@safestreets/db/schema";
+import { db } from "@safestreets/db/client";
+import { territory } from "@safestreets/db/schema";
 
 import type { territoryFilters } from "../schema/territory";
 
@@ -8,8 +10,8 @@ class TerritoryService {
   async getTerritory(id: number) {
     const [result] = await db
       .select()
-      .from(Territory)
-      .where(eq(Territory.id, id));
+      .from(territory)
+      .where(eq(territory.id, id));
 
     if (!result) {
       throw new Error(`Territory with id ${id} not found`);
@@ -20,25 +22,25 @@ class TerritoryService {
 
   async listTerritories(filters: territoryFilters) {
     let conditions = [];
-    conditions.push(eq(Territory.organizationId, 1));
+    conditions.push(eq(territory.organizationId, "1"));
 
-    return db.query.Territory.findMany({
+    return db.query.territory.findMany({
       limit: filters.limit ?? 50,
       offset: filters.offset ?? 0,
       where: and(...conditions),
     });
   }
 
-  async createTerritory(territory: territoryInsert) {
-    const [result] = await db.insert(Territory).values(territory).returning();
+  async createTerritory(t: InsertTerritory) {
+    const [result] = await db.insert(territory).values(t).returning();
     return result;
   }
 
-  async updateTerritory(id: number, territory: Partial<territoryInsert>) {
+  async updateTerritory(id: number, t: UpdateTerritory) {
     const [result] = await db
-      .update(Territory)
-      .set(territory)
-      .where(eq(Territory.id, id))
+      .update(territory)
+      .set(t)
+      .where(eq(territory.id, id))
       .returning();
 
     if (!result) {
@@ -50,8 +52,8 @@ class TerritoryService {
 
   async deleteTerritory(id: number) {
     const [result] = await db
-      .delete(Territory)
-      .where(eq(Territory.id, id))
+      .delete(territory)
+      .where(eq(territory.id, id))
       .returning();
 
     if (!result) {

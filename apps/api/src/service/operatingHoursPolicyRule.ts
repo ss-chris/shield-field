@@ -1,48 +1,45 @@
-import { db } from "@acme/db/client";
-import {
-  OperatingHoursPolicyRule,
-  OperatingHoursPolicyRuleInsert,
-} from "@acme/db/schema";
 import { and, eq } from "drizzle-orm";
 
-import { operatingHoursPolicyRuleFilters } from "~/schema/operatingHoursPolicyRule";
+import type {
+  InsertOperatingHoursPolicyRule,
+  UpdateOperatingHoursPolicyRule,
+} from "@safestreets/db/schema";
+import { db } from "@safestreets/db/client";
+import { operatingHoursPolicyRule } from "@safestreets/db/schema";
+
+import type { operatingHoursPolicyRuleFilters } from "../schema/operatingHoursPolicyRule";
 
 class OperatingHoursPolicyRuleService {
   async getOperatingHoursPolicyRule(id: number) {
     const [result] = await db
       .select()
-      .from(OperatingHoursPolicyRule)
-      .where(eq(OperatingHoursPolicyRule.id, id));
+      .from(operatingHoursPolicyRule)
+      .where(eq(operatingHoursPolicyRule.id, id));
 
     if (!result) {
-      throw new Error(`OHPR with id ${id} not found`);
+      throw new Error(`Operating Hours Policy Rule with id ${id} not found`);
     }
 
     return result;
   }
 
   async listOperatingHoursPolicyRules(
-    filters?: operatingHoursPolicyRuleFilters,
+    filters: operatingHoursPolicyRuleFilters,
   ) {
     let conditions = [];
-    if (filters.operatingHoursPolicyId)
-      conditions.push(
-        eq(
-          OperatingHoursPolicyRule.operatingHoursPolicyId,
-          filters.operatingHoursPolicyId,
-        ),
-      );
+    if (filters.policyId)
+      conditions.push(eq(operatingHoursPolicyRule.policyId, filters.policyId));
 
-    return db.query.OperatingHoursPolicyRule.findMany({
+    return db.query.operatingHoursPolicyRule.findMany({
       limit: filters.limit ?? 50,
       offset: filters.offset ?? 0,
       where: and(...conditions),
     });
   }
 
-  async createOperatingHoursPolicyRule(ohpr: OperatingHoursPolicyRuleInsert) {
+  async createOperatingHoursPolicyRule(ohpr: InsertOperatingHoursPolicyRule) {
     const [result] = await db
-      .insert(OperatingHoursPolicyRule)
+      .insert(operatingHoursPolicyRule)
       .values(ohpr)
       .returning();
     return result;
@@ -50,16 +47,16 @@ class OperatingHoursPolicyRuleService {
 
   async updateOperatingHoursPolicyRule(
     id: number,
-    ohpr: Partial<OperatingHoursPolicyRuleInsert>,
+    ohpr: UpdateOperatingHoursPolicyRule,
   ) {
     const [result] = await db
-      .update(OperatingHoursPolicyRule)
+      .update(operatingHoursPolicyRule)
       .set(ohpr)
-      .where(eq(OperatingHoursPolicyRule.id, id))
+      .where(eq(operatingHoursPolicyRule.id, id))
       .returning();
 
     if (result) {
-      throw new Error(`OHPR with id ${id} not found`);
+      throw new Error(`Operating Hours Policy Rule with id ${id} not found`);
     }
 
     return result;
@@ -67,12 +64,12 @@ class OperatingHoursPolicyRuleService {
 
   async deleteOperatingHoursPolicyRule(id: number) {
     const [result] = await db
-      .delete(OperatingHoursPolicyRule)
-      .where(eq(OperatingHoursPolicyRule.id, id))
+      .delete(operatingHoursPolicyRule)
+      .where(eq(operatingHoursPolicyRule.id, id))
       .returning();
 
     if (!result) {
-      throw new Error(`OHPR with id ${id} not found`);
+      throw new Error(`Operating Hours Policy Rule with id ${id} not found`);
     }
 
     return result;

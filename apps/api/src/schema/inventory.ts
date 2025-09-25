@@ -1,9 +1,10 @@
-import {
-  poliStatusEnum,
-  poStatusEnum,
-  warehouseTypeEnum,
-} from "@acme/db/schema";
 import z from "zod";
+
+import {
+  purchaseOrderLineItemStatusEnum,
+  purchaseOrderStatusEnum,
+  warehouseTypeEnum,
+} from "@safestreets/db/schema";
 
 // Warehouse
 
@@ -45,7 +46,7 @@ export type warehouseProductTransactionFilters = z.infer<
 
 export const purchaseOrderLineItemFiltersInput = z.object({
   id: z.number().optional(),
-  status: z.enum(poliStatusEnum.enumValues).optional(),
+  status: z.enum(purchaseOrderLineItemStatusEnum.enumValues).optional(),
   purchaseOrderIds: z.number().array().optional(),
 });
 
@@ -78,7 +79,7 @@ export type purchaseOrderShipmentFilters = z.infer<
 export const purchaseOrderFiltersInput = z.object({
   id: z.number().optional(),
   type: z.string().optional(),
-  statuses: z.enum(poStatusEnum.enumValues).array().optional(),
+  statuses: z.enum(purchaseOrderStatusEnum.enumValues).array().optional(),
   parentPurchaseOrderId: z.number().optional(),
   warehouseId: z.number().optional(),
 });

@@ -1,14 +1,14 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 
-import type { AppVariables } from "~/app";
 import {
-  createSchedulingPolicyInput,
-  schedulingPolicyFiltersInput,
-  updateSchedulingPolicyInput,
-} from "~/schema/schedulingPolicy";
-import SchedulingPolicyService from "~/services/schedulingPolicy";
-import { getAppVars } from "~/utils/context";
+  insertSchedulingPolicySchema,
+  updateSchedulingPolicySchema,
+} from "@safestreets/db/schema";
+
+import type { AppVariables } from "../app";
+import { schedulingPolicyFiltersInput } from "../schema/schedulingPolicy";
+import SchedulingPolicyService from "../service/schedulingPolicy";
 
 const schedulingPolicyService = new SchedulingPolicyService();
 
@@ -46,7 +46,7 @@ export const schedulingPolicyRouter = new Hono<AppEnv>()
     }
   })
 
-  .post("/", zValidator("json", createSchedulingPolicyInput), async (c) => {
+  .post("/", zValidator("json", insertSchedulingPolicySchema), async (c) => {
     const policy = c.req.valid("json");
 
     try {
@@ -59,23 +59,27 @@ export const schedulingPolicyRouter = new Hono<AppEnv>()
     }
   })
 
-  .patch("/:id", zValidator("json", updateSchedulingPolicyInput), async (c) => {
-    const id = c.req.param("id");
-    const updates = c.req.valid("json");
+  .patch(
+    "/:id",
+    zValidator("json", updateSchedulingPolicySchema),
+    async (c) => {
+      const id = c.req.param("id");
+      const updates = c.req.valid("json");
 
-    try {
-      const result = await schedulingPolicyService.updateSchedulingPolicy(
-        Number(id),
-        updates,
-      );
-      return c.json({ data: result }, 200);
-    } catch (error) {
-      console.error(
-        `Failed to update Scheduling Policy with id ${id}, ${error}`,
-      );
-      return c.json({ message: error }, 500);
-    }
-  })
+      try {
+        const result = await schedulingPolicyService.updateSchedulingPolicy(
+          Number(id),
+          updates,
+        );
+        return c.json({ data: result }, 200);
+      } catch (error) {
+        console.error(
+          `Failed to update Scheduling Policy with id ${id}, ${error}`,
+        );
+        return c.json({ message: error }, 500);
+      }
+    },
+  )
 
   .delete("/:id", async (c) => {
     const id = c.req.param("id");

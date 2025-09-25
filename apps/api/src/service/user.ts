@@ -1,16 +1,18 @@
-import { db } from "@acme/db/client";
-import { FieldUserWarehouse, Organization, User } from "@acme/db/schema";
-import { and, eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
-import { userFilters } from "~/schema/user";
+import type { InsertUser, UpdateUser } from "@safestreets/db/schema";
+import { db } from "@safestreets/db/client";
+import { user } from "@safestreets/db/schema";
+
+import type { userFiltersInput } from "../schema/user";
 
 /**
  * Placeholder user service to be refined later for user creation, management, etc.
  * */
 
 class UserService {
-  async getUser(id: number) {
-    const [result] = await db.select().from(User).where(eq(User.id, id));
+  async getUser(id: string) {
+    const [result] = await db.select().from(user).where(eq(user.id, id));
 
     if (!result) {
       throw new Error(`User with id ${id} not found`);
@@ -19,40 +21,23 @@ class UserService {
     return result;
   }
 
-  async listUsers(filters: userFilters) {
-    let conditions = [];
-    conditions.push(eq(User.organizationId, 1));
-
-    if (filters.warehouseId) {
-      const fieldUserWarehouses = await db
-        .select()
-        .from(FieldUserWarehouse)
-        .where(eq(FieldUserWarehouse.warehouseId, filters.warehouseId));
-
-      const userIds = fieldUserWarehouses.map((f) => {
-        return f.userId;
-      });
-
-      conditions.push(inArray(User.id, userIds));
-    }
-
-    return db.query.SchedulingPolicy.findMany({
+  async listUsers(filters: userFiltersInput) {
+    return db.query.user.findMany({
       limit: filters.limit ?? 50,
       offset: filters.offset ?? 0,
-      where: and(...conditions),
     });
   }
 
-  async createUser(user: userInsert) {
-    const [result] = await db.insert(User).values(user).returning();
+  async createUser(u: InsertUser) {
+    const [result] = await db.insert(user).values(u).returning();
     return result;
   }
 
-  async updateUser(id: number, user: Partial<userInsert>) {
+  async updateUser(id: string, u: UpdateUser) {
     const [result] = await db
-      .update(User)
-      .set(user)
-      .where(eq(User.id, id))
+      .update(user)
+      .set(u)
+      .where(eq(user.id, id))
       .returning();
 
     if (!result) {
@@ -62,8 +47,8 @@ class UserService {
     return result;
   }
 
-  async deleteUser(id: number) {
-    const [result] = await db.delete(User).where(eq(User.id, id)).returning();
+  async deleteUser(id: string) {
+    const [result] = await db.delete(user).where(eq(user.id, id)).returning();
 
     if (!result) {
       throw new Error(`User with id ${id} not found`);

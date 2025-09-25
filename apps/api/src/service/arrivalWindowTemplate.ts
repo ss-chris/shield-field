@@ -1,25 +1,23 @@
-import { db } from "@acme/db/client";
-import {
-  ArrivalWindowTemplate,
-  ArrivalWindowTemplateInsert,
-} from "@acme/db/schema";
-import { and, eq, ilike, like } from "drizzle-orm";
-import z from "zod";
+import { and, eq, ilike } from "drizzle-orm";
 
-import { arrivalWindowTemplateFiltersInput } from "~/schema/arrivalWindowTemplate";
+import type { InsertArrivalWindowTemplate } from "@safestreets/db/schema";
+import { db } from "@safestreets/db/client";
+import { arrivalWindowTemplate } from "@safestreets/db/schema";
+
+import type { arrivalWindowTemplateFilters } from "../schema/arrivalWindowTemplate";
 
 class ArrivalWindowTemplateService {
-  async listArrivalWindowTemplates(filters: arrivalWindowTemplateFiltersInput) {
+  async listArrivalWindowTemplates(filters: arrivalWindowTemplateFilters) {
     let conditions = [];
-    conditions.push(eq(ArrivalWindowTemplate.organizationId, 1));
+    conditions.push(eq(arrivalWindowTemplate.organizationId, "1"));
     if (filters.id) {
-      conditions.push(eq(ArrivalWindowTemplate.id, filters.id));
+      conditions.push(eq(arrivalWindowTemplate.id, filters.id));
     }
     if (filters.name) {
-      conditions.push(ilike(ArrivalWindowTemplate.name, filters.name));
+      conditions.push(ilike(arrivalWindowTemplate.name, filters.name));
     }
 
-    return db.query.ArrivalWindowTemplate.findMany({
+    return db.query.arrivalWindowTemplate.findMany({
       limit: filters.limit ?? 50,
       offset: filters.offset ?? 0,
       where: and(...conditions),
@@ -29,19 +27,19 @@ class ArrivalWindowTemplateService {
   async getArrivalWindowTemplate(id: number) {
     const [result] = await db
       .select()
-      .from(ArrivalWindowTemplate)
-      .where(eq(ArrivalWindowTemplate.id, id));
+      .from(arrivalWindowTemplate)
+      .where(eq(arrivalWindowTemplate.id, id));
 
     if (!result) {
-      throw new Error(`AWT with id ${id} not found`);
+      throw new Error(`Arrival Window Template with id ${id} not found`);
     }
 
     return result;
   }
 
-  async createArrivalWindowTemplate(awt: ArrivalWindowTemplateInsert) {
+  async createArrivalWindowTemplate(awt: InsertArrivalWindowTemplate) {
     const [result] = await db
-      .insert(ArrivalWindowTemplate)
+      .insert(arrivalWindowTemplate)
       .values(awt)
       .returning();
     return result;
@@ -49,16 +47,16 @@ class ArrivalWindowTemplateService {
 
   async updateArrivalWindowTemplate(
     id: number,
-    awt: Partial<ArrivalWindowTemplateInsert>,
+    awt: Partial<InsertArrivalWindowTemplate>,
   ) {
     const [result] = await db
-      .update(ArrivalWindowTemplate)
+      .update(arrivalWindowTemplate)
       .set(awt)
-      .where(eq(ArrivalWindowTemplate.id, id))
+      .where(eq(arrivalWindowTemplate.id, id))
       .returning();
 
     if (result) {
-      throw new Error(`AWT with id ${id} not found`);
+      throw new Error(`Arrival Window Template with id ${id} not found`);
     }
 
     return result;
@@ -66,12 +64,12 @@ class ArrivalWindowTemplateService {
 
   async deleteArrivalWindowTemplate(id: number) {
     const [result] = await db
-      .delete(ArrivalWindowTemplate)
-      .where(eq(ArrivalWindowTemplate.id, id))
+      .delete(arrivalWindowTemplate)
+      .where(eq(arrivalWindowTemplate.id, id))
       .returning();
 
     if (!result) {
-      throw new Error(`AWT with id ${id} not found`);
+      throw new Error(`Arrival Window Template with id ${id} not found`);
     }
 
     return result;

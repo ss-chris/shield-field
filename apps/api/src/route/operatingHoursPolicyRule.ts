@@ -1,13 +1,14 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 
-import type { AppVariables } from "~/app";
 import {
-  createOperatingHoursPolicyRuleInput,
-  operatingHoursPolicyRuleFiltersInput,
-  updateOperatingHoursPolicyRuleInput,
-} from "~/schema/operatingHoursPolicyRule";
-import OperatingHoursPolicyRuleService from "~/services/operatingHoursPolicyRule";
+  insertOperatingHoursPolicyRuleSchema,
+  updateOperatingHoursPolicyRuleSchema,
+} from "@safestreets/db/schema";
+
+import type { AppVariables } from "../app";
+import { operatingHoursPolicyRuleFiltersInput } from "../schema/operatingHoursPolicyRule";
+import OperatingHoursPolicyRuleService from "../service/operatingHoursPolicyRule";
 
 // ---------------------------------------------------------------------------- //
 
@@ -28,7 +29,9 @@ export const operatingHoursPolicyRuleRouter = new Hono<AppEnv>()
         );
       return c.json({ data: result }, 200);
     } catch (error) {
-      console.error(`Failed to get OHPR with id - ${id}, ${error}`);
+      console.error(
+        `Failed to get Operating Hours Policy Rule with id - ${id}, ${error}`,
+      );
       return c.json({ message: error }, 500);
     }
   })
@@ -46,7 +49,7 @@ export const operatingHoursPolicyRuleRouter = new Hono<AppEnv>()
           );
         return c.json({ data: results }, 200);
       } catch (error) {
-        console.error(`Failed to get OHPRs, ${error}`);
+        console.error(`Failed to get Operating Hours Policy Rules, ${error}`);
         return c.json({ message: error }, 500);
       }
     },
@@ -54,7 +57,7 @@ export const operatingHoursPolicyRuleRouter = new Hono<AppEnv>()
 
   .post(
     "/",
-    zValidator("json", createOperatingHoursPolicyRuleInput),
+    zValidator("json", insertOperatingHoursPolicyRuleSchema),
     async (c) => {
       const ohpr = c.req.valid("json");
       try {
@@ -64,7 +67,7 @@ export const operatingHoursPolicyRuleRouter = new Hono<AppEnv>()
           );
         return c.json({ data: result }, 200);
       } catch (error) {
-        console.error(`Failed to create OHPR, ${error}`);
+        console.error(`Failed to create Operating Hours Policy Rule, ${error}`);
         return c.json({ message: error }, 500);
       }
     },
@@ -72,7 +75,7 @@ export const operatingHoursPolicyRuleRouter = new Hono<AppEnv>()
 
   .patch(
     "/:id",
-    zValidator("json", updateOperatingHoursPolicyRuleInput),
+    zValidator("json", updateOperatingHoursPolicyRuleSchema),
     async (c) => {
       const id = c.req.param("id");
       const updates = c.req.valid("json");
@@ -85,7 +88,9 @@ export const operatingHoursPolicyRuleRouter = new Hono<AppEnv>()
           );
         return c.json({ data: result }, 200);
       } catch (error) {
-        console.error(`Failed to update OHPR with id ${id}, ${error}`);
+        console.error(
+          `Failed to update Operating Hours Policy Rule with id ${id}, ${error}`,
+        );
         return c.json({ message: error }, 500);
       }
     },
@@ -99,7 +104,9 @@ export const operatingHoursPolicyRuleRouter = new Hono<AppEnv>()
         Number(id),
       );
     } catch (error) {
-      console.error(`Failed to delete AWT with id - ${id}, ${error}`);
+      console.error(
+        `Failed to delete Operating Hours Policy Rule with id - ${id}, ${error}`,
+      );
       return c.json({ message: error }, 500);
     }
   });

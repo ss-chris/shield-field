@@ -1,33 +1,39 @@
-import {
-  CreatePurchaseOrderLineItemSchema,
-  CreatePurchaseOrderLineItemType,
-  CreatePurchaseOrderSchema,
-  CreatePurchaseOrderShipmentSchema,
-  CreatePurchaseOrderType,
-  CreateWarehouseProductSchema,
-  CreateWarehouseSchema,
-  PurchaseOrderType,
-  UpdatePurchaseOrderLineItemSchema,
-  UpdatePurchaseOrderSchema,
-  UpdatePurchaseOrderShipmentSchema,
-  UpdateWarehouseSchema,
-} from "@acme/db/schema";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 
+import type {
+  InsertPurchaseOrder,
+  InsertPurchaseOrderLineItem,
+  SelectPurchaseOrder,
+} from "@safestreets/db/schema";
+import {
+  insertPurchaseOrderLineItemSchema,
+  insertPurchaseOrderSchema,
+  insertPurchaseOrderShipmentSchema,
+  insertWarehouseProductSchema,
+  insertWarehouseSchema,
+  selectPurchaseOrderSchema,
+  selectWarehouseSchema,
+  updatePurchaseOrderLineItemSchema,
+  updatePurchaseOrderShipmentSchema,
+  updateWarehouseSchema,
+} from "@safestreets/db/schema";
+
+import type {
+  purchaseOrderFilters,
+  purchaseOrderLineItemFilters,
+  warehouseProductFilters,
+} from "../schema/inventory";
 import {
   posteFiltersInput,
-  purchaseOrderFilters,
   purchaseOrderFiltersInput,
-  purchaseOrderLineItemFilters,
   purchaseOrderLineItemFiltersInput,
   purchaseOrderShipmentFiltersInput,
   warehouseFiltersInput,
-  warehouseProductFilters,
   warehouseProductFiltersInput,
   warehouseProductTransactionFiltersInput,
-} from "~/schema/inventory";
-import InventoryService from "~/services/inventory";
+} from "../schema/inventory";
+import InventoryService from "../service/inventory";
 
 const inventoryService = new InventoryService();
 
@@ -45,7 +51,7 @@ const inventoryRouter = new Hono()
       });
     } catch (error) {
       return c.json({
-        error: "Unable to fetch warehouse with id " + id,
+        error: "Unable to fetch Warehouse with id " + id,
         success: false,
       });
     }
@@ -64,13 +70,13 @@ const inventoryRouter = new Hono()
       });
     } catch (error) {
       return c.json({
-        error: "Unable to fetch warehouses",
+        error: "Unable to fetch Warehouses",
         success: false,
       });
     }
   })
 
-  .post("/warehouse", zValidator("json", CreateWarehouseSchema), async (c) => {
+  .post("/warehouse", zValidator("json", insertWarehouseSchema), async (c) => {
     const warehouse = c.req.valid("json");
 
     try {
@@ -82,7 +88,7 @@ const inventoryRouter = new Hono()
     } catch (error) {
       console.error("create warehouse failed", error);
       return c.json({
-        error: "Unable to create warehouse: " + error,
+        error: "Unable to create Warehouse: " + error,
         success: false,
       });
     }
@@ -90,7 +96,7 @@ const inventoryRouter = new Hono()
 
   .patch(
     "/warehouse/:id",
-    zValidator("json", UpdateWarehouseSchema),
+    zValidator("json", updateWarehouseSchema),
     async (c) => {
       const warehouseInput = c.req.valid("json");
       const id = c.req.param("id");
@@ -107,7 +113,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to update warehouse",
+          error: "Unable to update Warehouse",
           success: false,
         });
       }
@@ -131,7 +137,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to fetch warehouse products",
+          error: "Unable to fetch Warehouse Products",
           success: false,
         });
       }
@@ -140,7 +146,7 @@ const inventoryRouter = new Hono()
 
   .post(
     "/warehouse-product",
-    zValidator("json", CreateWarehouseProductSchema),
+    zValidator("json", insertWarehouseProductSchema),
     async (c) => {
       const warehouseProductInput = c.req.valid("json");
 
@@ -155,7 +161,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to create warehouseProduct",
+          error: "Unable to create Warehouse Product",
           success: false,
         });
       }
@@ -179,7 +185,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to fetch warehouse product transactions",
+          error: "Unable to fetch Warehouse Product Transactions",
           success: false,
         });
       }
@@ -199,13 +205,13 @@ const inventoryRouter = new Hono()
       });
     } catch (error) {
       return c.json({
-        error: "Unable to fetch purchase orders",
+        error: "Unable to fetch Purchase Orders",
         success: false,
       });
     }
   })
 
-  .post("/po", zValidator("json", CreatePurchaseOrderSchema), async (c) => {
+  .post("/po", zValidator("json", insertPurchaseOrderSchema), async (c) => {
     const purchaseOrderInput = c.req.valid("json");
 
     try {
@@ -218,7 +224,7 @@ const inventoryRouter = new Hono()
       });
     } catch (error) {
       return c.json({
-        error: "Unable to create purchase order",
+        error: "Unable to create Purchase Order",
         success: false,
       });
     }
@@ -226,7 +232,7 @@ const inventoryRouter = new Hono()
 
   .patch(
     "/po/:id",
-    zValidator("json", UpdatePurchaseOrderSchema),
+    zValidator("json", selectPurchaseOrderSchema),
     async (c) => {
       const purchaseOrderInput = c.req.valid("json");
       const id = c.req.param("id");
@@ -243,7 +249,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to update purchase order - " + error,
+          error: "Unable to update Purchase Order - " + error,
           success: false,
         });
       }
@@ -261,7 +267,7 @@ const inventoryRouter = new Hono()
       const wps = await inventoryService.listWarehouseProducts(wpFilters);
       const existingPos = await inventoryService.listPurchaseOrders(poFilters);
 
-      let warehousePoMap = new Map<number, PurchaseOrderType>();
+      let warehousePoMap = new Map<number, SelectPurchaseOrder>();
       let createPolis = [];
       for (const wp of wps) {
         // find related purchase order line items
@@ -291,7 +297,7 @@ const inventoryRouter = new Hono()
         // create purchase orders, purchase order line items as needed
         let targetPo = warehousePoMap.get(wp.warehouseId);
         if (!targetPo) {
-          const po: CreatePurchaseOrderType = {
+          const po: InsertPurchaseOrder = {
             type: "system",
             status: "open",
             destinationWarehouseId: wp.warehouseId,
@@ -299,7 +305,7 @@ const inventoryRouter = new Hono()
           targetPo = await inventoryService.createPurchaseOrder(po);
           warehousePoMap.set(wp.warehouseId, targetPo);
         }
-        const poli: CreatePurchaseOrderLineItemType = {
+        const poli: InsertPurchaseOrderLineItem = {
           status: "created",
           quantityOrdered: deficit,
           quantityReceived: 0,
@@ -321,7 +327,7 @@ const inventoryRouter = new Hono()
       });
     } catch (error) {
       return c.json({
-        error: "PO creation process failed with error: " + error,
+        error: "Purchase Order creation process failed with error: " + error,
         success: false,
       });
     }
@@ -344,7 +350,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to fetch purchase order line items",
+          error: "Unable to fetch Purchase Order Line Items",
           success: false,
         });
       }
@@ -353,7 +359,7 @@ const inventoryRouter = new Hono()
 
   .post(
     "/poli/batch",
-    zValidator("json", CreatePurchaseOrderLineItemSchema.array()),
+    zValidator("json", insertPurchaseOrderLineItemSchema.array()),
     async (c) => {
       const poliInput = c.req.valid("json");
 
@@ -367,7 +373,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to create purchase order line items",
+          error: "Unable to create Purchase Order Line Items",
           success: false,
         });
       }
@@ -376,7 +382,7 @@ const inventoryRouter = new Hono()
 
   .patch(
     "/poli/batch",
-    zValidator("json", UpdatePurchaseOrderLineItemSchema.array()),
+    zValidator("json", updatePurchaseOrderLineItemSchema.array()),
     async (c) => {
       const poliInput = c.req.valid("json");
 
@@ -390,7 +396,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to update purchase order line items - " + error,
+          error: "Unable to update Purchase Order Line Items - " + error,
           success: false,
         });
       }
@@ -414,7 +420,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to fetch purchase order shipments",
+          error: "Unable to fetch Purchase Order Shipments",
           success: false,
         });
       }
@@ -423,7 +429,7 @@ const inventoryRouter = new Hono()
 
   .post(
     "/po-shipment",
-    zValidator("json", CreatePurchaseOrderShipmentSchema),
+    zValidator("json", insertPurchaseOrderShipmentSchema),
     async (c) => {
       const purchaseOrderShipmentInput = c.req.valid("json");
 
@@ -438,7 +444,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to create purchase order shipment",
+          error: "Unable to create Purchase Order Shipment",
           success: false,
         });
       }
@@ -447,7 +453,7 @@ const inventoryRouter = new Hono()
 
   .patch(
     "/po-shipment/:id",
-    zValidator("json", UpdatePurchaseOrderShipmentSchema),
+    zValidator("json", updatePurchaseOrderShipmentSchema),
     async (c) => {
       const purchaseOrderShipmentInput = c.req.valid("json");
       const id = c.req.param("id");
@@ -464,7 +470,7 @@ const inventoryRouter = new Hono()
         });
       } catch (error) {
         return c.json({
-          error: "Unable to update purchase order shipment",
+          error: "Unable to update Purchase Order Shipment",
           success: false,
         });
       }
@@ -485,7 +491,7 @@ const inventoryRouter = new Hono()
       });
     } catch (error) {
       return c.json({
-        error: "Unable to fetch purchase order shipment tracking events",
+        error: "Unable to fetch Purchase Order Shipment Tracking Events",
         success: false,
       });
     }

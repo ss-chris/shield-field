@@ -1,7 +1,11 @@
 import type { z } from "zod/v4";
 import { relations } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
 
 import { baseFields } from "./base-fields";
 
@@ -166,8 +170,10 @@ export const invitationRelations = relations(invitation, ({ one }) => ({
 
 export const insertUserSchema = createInsertSchema(user);
 export const selectUserSchema = createSelectSchema(user);
+export const updateUserSchema = createUpdateSchema(user);
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type SelectUser = z.infer<typeof selectUserSchema>;
+export type UpdateUser = z.infer<typeof updateUserSchema>;
 
 export const insertSessionSchema = createInsertSchema(session);
 export const selectSessionSchema = createSelectSchema(session);

@@ -1,6 +1,10 @@
 import { relations } from "drizzle-orm";
 import { pgEnum, pgTable } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
 import { z } from "zod/v4";
 
 import { baseFields } from "./base-fields";
@@ -279,25 +283,34 @@ export const purchaseOrderShipmentTrackingEventRelations = relations(
 
 export const insertProductSchema = createInsertSchema(product);
 export const selectProductSchema = createSelectSchema(product);
+export const updateProductSchema = createUpdateSchema(product);
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type SelectProduct = z.infer<typeof selectProductSchema>;
+export type UpdateProduct = z.infer<typeof updateProductSchema>;
 
 export const insertWarehouseSchema = createInsertSchema(warehouse, {
   type: z.enum(warehouseTypeEnum.enumValues),
 });
 export const selectWarehouseSchema = createSelectSchema(warehouse);
+export const updateWarehouseSchema = createUpdateSchema(warehouse);
 export type InsertWarehouse = z.infer<typeof insertWarehouseSchema>;
 export type SelectWarehouse = z.infer<typeof selectWarehouseSchema>;
+export type UpdateWarehouse = z.infer<typeof updateWarehouseSchema>;
 
 export const insertWarehouseProductSchema =
   createInsertSchema(warehouseProduct);
 export const selectWarehouseProductSchema =
   createSelectSchema(warehouseProduct);
+export const updateWarehouseProductSchema =
+  createUpdateSchema(warehouseProduct);
 export type InsertWarehouseProduct = z.infer<
   typeof insertWarehouseProductSchema
 >;
 export type SelectWarehouseProduct = z.infer<
   typeof selectWarehouseProductSchema
+>;
+export type UpdateWarehouseProduct = z.infer<
+  typeof updateWarehouseProductSchema
 >;
 
 export const insertWarehouseProductTransactionSchema = createInsertSchema(
@@ -309,19 +322,27 @@ export const insertWarehouseProductTransactionSchema = createInsertSchema(
 export const selectWarehouseProductTransactionSchema = createSelectSchema(
   warehouseProductTransaction,
 );
+export const updateWarehouseProductTransactionSchema = createUpdateSchema(
+  warehouseProductTransaction,
+);
 export type InsertWarehouseProductTransaction = z.infer<
   typeof insertWarehouseProductTransactionSchema
 >;
 export type SelectWarehouseProductTransaction = z.infer<
   typeof selectWarehouseProductTransactionSchema
 >;
+export type UpdateWarehouseProductTransaction = z.infer<
+  typeof updateWarehouseProductTransactionSchema
+>;
 
 export const insertPurchaseOrderSchema = createInsertSchema(purchaseOrder, {
   status: z.enum(purchaseOrderStatusEnum.enumValues),
 });
 export const selectPurchaseOrderSchema = createSelectSchema(purchaseOrder);
+export const updatePurchaseOrderSchema = createUpdateSchema(purchaseOrder);
 export type InsertPurchaseOrder = z.infer<typeof insertPurchaseOrderSchema>;
 export type SelectPurchaseOrder = z.infer<typeof selectPurchaseOrderSchema>;
+export type UpdatePurchaseOrder = z.infer<typeof updatePurchaseOrderSchema>;
 
 export const insertPurchaseOrderLineItemSchema = createInsertSchema(
   purchaseOrderLineItem,
@@ -332,11 +353,17 @@ export const insertPurchaseOrderLineItemSchema = createInsertSchema(
 export const selectPurchaseOrderLineItemSchema = createSelectSchema(
   purchaseOrderLineItem,
 );
+export const updatePurchaseOrderLineItemSchema = createUpdateSchema(
+  purchaseOrderLineItem,
+);
 export type InsertPurchaseOrderLineItem = z.infer<
   typeof insertPurchaseOrderLineItemSchema
 >;
 export type SelectPurchaseOrderLineItem = z.infer<
   typeof selectPurchaseOrderLineItemSchema
+>;
+export type UpdatePurchaseOrderLineItem = z.infer<
+  typeof updatePurchaseOrderLineItemSchema
 >;
 
 export const insertPurchaseOrderShipmentSchema = createInsertSchema(
@@ -348,20 +375,31 @@ export const insertPurchaseOrderShipmentSchema = createInsertSchema(
 export const selectPurchaseOrderShipmentSchema = createSelectSchema(
   purchaseOrderShipment,
 );
+export const updatePurchaseOrderShipmentSchema = createUpdateSchema(
+  purchaseOrderShipment,
+);
 export type InsertPurchaseOrderShipment = z.infer<
   typeof insertPurchaseOrderShipmentSchema
 >;
 export type SelectPurchaseOrderShipment = z.infer<
   typeof selectPurchaseOrderShipmentSchema
 >;
+export type UpdatePurchaseOrderShipment = z.infer<
+  typeof updatePurchaseOrderShipmentSchema
+>;
 
 export const insertPurchaseOrderShipmentTrackingEventSchema =
   createInsertSchema(purchaseOrderShipmentTrackingEvent);
 export const selectPurchaseOrderShipmentTrackingEventSchema =
   createSelectSchema(purchaseOrderShipmentTrackingEvent);
+export const updatePurchaseOrderShipmentTrackingEventSchema =
+  createUpdateSchema(purchaseOrderShipmentTrackingEvent);
 export type InsertPurchaseOrderShipmentTrackingEvent = z.infer<
   typeof insertPurchaseOrderShipmentTrackingEventSchema
 >;
 export type SelectPurchaseOrderShipmentTrackingEvent = z.infer<
   typeof selectPurchaseOrderShipmentTrackingEventSchema
+>;
+export type UpdatePurchaseOrderShipmentTrackingEvent = z.infer<
+  typeof updatePurchaseOrderShipmentTrackingEventSchema
 >;

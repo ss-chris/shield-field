@@ -31,7 +31,8 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.5",
+    "drizzle-orm": "catalog:",
+    "drizzle-seed": "^0.3.1",
     "drizzle-zod": "^0.8.3",
     "pg": "^8.16.3",
     "zod": "catalog:"
