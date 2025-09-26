@@ -6,8 +6,8 @@ import {
   updateTerritorySchema,
 } from "@safestreets/db/schema";
 
-import { territoryFiltersInput } from "../schema/territory";
-import TerritoryService from "../service/territory";
+import { territoryFiltersInput } from "~/schema/territory";
+import TerritoryService from "~/service/territory";
 
 const territoryService = new TerritoryService();
 

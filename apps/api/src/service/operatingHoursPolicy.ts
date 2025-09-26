@@ -7,7 +7,7 @@ import type {
 import { db } from "@safestreets/db/client";
 import { operatingHoursPolicy } from "@safestreets/db/schema";
 
-import type { operatingHoursPolicyFilters } from "../schema/operatingHoursPolicy";
+import type { operatingHoursPolicyFilters } from "~/schema/operatingHoursPolicy";
 
 class OperatingHoursPolicyService {
   async getOperatingHoursPolicy(id: number) {

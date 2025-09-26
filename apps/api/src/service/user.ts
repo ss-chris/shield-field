@@ -4,7 +4,7 @@ import type { InsertUser, UpdateUser } from "@safestreets/db/schema";
 import { db } from "@safestreets/db/client";
 import { user } from "@safestreets/db/schema";
 
-import type { userFiltersInput } from "../schema/user";
+import type { userFiltersInput } from "~/schema/user";
 
 /**
  * Placeholder user service to be refined later for user creation, management, etc.

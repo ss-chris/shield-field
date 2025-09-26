@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { reset, seed } from "drizzle-seed";
 
+import { env } from "~/env";
 import {
   account,
   invitation,
@@ -10,11 +11,11 @@ import {
   ssoProvider,
   user,
   verification,
-} from "../schema";
-import * as auth from "../schematics/auth-schema";
+} from "~/schema";
+import * as auth from "~/schematics/auth-schema";
 
 async function main() {
-  const url = process.env.PRIMARY_DATABASE_URL ?? "";
+  const url = env.PRIMARY_DATABASE_URL;
 
   const db = drizzle({ connection: url, casing: "snake_case" });
 

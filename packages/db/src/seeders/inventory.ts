@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { reset, seed } from "drizzle-seed";
 
+import { env } from "~/env";
 import {
   address,
   location,
@@ -13,14 +14,14 @@ import {
   warehouse,
   warehouseProduct,
   warehouseProductTransaction,
-} from "../schema";
-import * as auth from "../schematics/auth-schema";
-import * as inventory from "../schematics/inventory";
-import * as locations from "../schematics/locations";
-import { STATE_CODES_TO_NAMES } from "../utils/staticFields";
+} from "~/schema";
+import * as auth from "~/schematics/auth-schema";
+import * as inventory from "~/schematics/inventory";
+import * as locations from "~/schematics/locations";
+import { STATE_CODES_TO_NAMES } from "~/utils/staticFields";
 
 async function main() {
-  const url = process.env.PRIMARY_DATABASE_URL ?? "";
+  const url = env.PRIMARY_DATABASE_URL;
 
   const db = drizzle({ connection: url, casing: "snake_case" });
 

@@ -1,9 +1,14 @@
-import { serve } from '@hono/node-server'
-import { app } from './app'
+import { serve } from "@hono/node-server";
 
-serve({
-  fetch: app.fetch,
-  port: 3000
-}, (info) => {
-  console.log(`Server is running on :${info.port}`)
-})
+import { app } from "~/app";
+import { env } from "~/env";
+
+serve(
+  {
+    fetch: app.fetch,
+    port: env.API_PORT,
+  },
+  (info) => {
+    console.log(`Server is running on :${info.port}`);
+  },
+);

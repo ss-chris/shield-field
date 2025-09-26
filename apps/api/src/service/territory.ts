@@ -4,7 +4,7 @@ import type { InsertTerritory, UpdateTerritory } from "@safestreets/db/schema";
 import { db } from "@safestreets/db/client";
 import { territory } from "@safestreets/db/schema";
 
-import type { territoryFilters } from "../schema/territory";
+import type { territoryFilters } from "~/schema/territory";
 
 class TerritoryService {
   async getTerritory(id: number) {

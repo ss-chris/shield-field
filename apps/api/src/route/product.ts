@@ -1,8 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 
-import { productFiltersInput } from "../schema/product";
-import ProductService from "../service/product";
+import { productFiltersInput } from "~/schema/product";
+import ProductService from "~/service/product";
 
 const productService = new ProductService();
 

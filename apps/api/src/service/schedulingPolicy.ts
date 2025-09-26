@@ -7,7 +7,7 @@ import type {
 import { db } from "@safestreets/db/client";
 import { schedulingPolicy } from "@safestreets/db/schema";
 
-import type { schedulingPolicyFilters } from "../schema/schedulingPolicy";
+import type { schedulingPolicyFilters } from "~/schema/schedulingPolicy";
 
 class SchedulingPolicyService {
   async getSchedulingPolicy(id: number) {

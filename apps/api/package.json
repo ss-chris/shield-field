@@ -8,6 +8,7 @@
     "dev": "pnpm with-env tsx watch src/index.ts",
     "build": "pnpm with-env tsc",
     "start": "pnpm with-env node dist/index.js",
+    "format": "prettier --check . --ignore-path ../../.gitignore --ignore-path .prettierignore",
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
@@ -22,9 +23,14 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@safestreets/eslint-config": "workspace:*",
+    "@safestreets/prettier-config": "workspace:*",
     "@types/node": "^22.18.1",
     "dotenv-cli": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "tsx": "^4.7.1",
     "typescript": "catalog:"
-  }
+  },
+  "prettier": "@safestreets/prettier-config"
 }

@@ -1,18 +1,19 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { reset, seed } from "drizzle-seed";
 
+import { env } from "~/env";
 import {
   arrivalWindowTemplate,
   operatingHoursPolicy,
   operatingHoursPolicyRule,
   organization,
   schedulingPolicy,
-} from "../schema";
-import * as auth from "../schematics/auth-schema";
-import * as scheduling from "../schematics/scheduling";
+} from "~/schema";
+import * as auth from "~/schematics/auth-schema";
+import * as scheduling from "~/schematics/scheduling";
 
 async function main() {
-  const url = process.env.PRIMARY_DATABASE_URL ?? "";
+  const url = env.PRIMARY_DATABASE_URL;
 
   const db = drizzle({ connection: url, casing: "snake_case" });
 

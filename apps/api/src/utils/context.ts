@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 
-import type { AppVariables } from "../app";
+import type { AppVariables } from "~/app";
 
 export function getAppVars(
   c: Context<{ Variables: AppVariables }>,

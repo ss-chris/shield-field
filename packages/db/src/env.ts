@@ -1,15 +1,10 @@
 import { createEnv } from "@t3-oss/env-core";
-import z from "zod";
+import { z } from "zod/v4";
 
 export const env = createEnv({
   server: {
-    API_PORT: z.number(),
     PRIMARY_DATABASE_URL: z.url().startsWith("postgresql://"),
     READ_CLONE_DATABASE_URL: z.url().startsWith("postgresql://"),
-    MICROSOFT_CLIENT_ID: z.string().length(36),
-    MICROSOFT_CLIENT_SECRET: z.string().length(40),
-    MICROSOFT_TENANT_ID: z.string().length(36),
-    AUTH_SECRET: z.string(),
   },
   /**
    * What object holds the environment variables at runtime. This is usually

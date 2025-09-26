@@ -6,9 +6,9 @@ import {
   updateSchedulingPolicySchema,
 } from "@safestreets/db/schema";
 
-import type { AppVariables } from "../app";
-import { schedulingPolicyFiltersInput } from "../schema/schedulingPolicy";
-import SchedulingPolicyService from "../service/schedulingPolicy";
+import type { AppVariables } from "~/app";
+import { schedulingPolicyFiltersInput } from "~/schema/schedulingPolicy";
+import SchedulingPolicyService from "~/service/schedulingPolicy";
 
 const schedulingPolicyService = new SchedulingPolicyService();
 

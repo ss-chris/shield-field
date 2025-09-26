@@ -6,9 +6,9 @@ import {
   updateOperatingHoursPolicyRuleSchema,
 } from "@safestreets/db/schema";
 
-import type { AppVariables } from "../app";
-import { operatingHoursPolicyRuleFiltersInput } from "../schema/operatingHoursPolicyRule";
-import OperatingHoursPolicyRuleService from "../service/operatingHoursPolicyRule";
+import type { AppVariables } from "~/app";
+import { operatingHoursPolicyRuleFiltersInput } from "~/schema/operatingHoursPolicyRule";
+import OperatingHoursPolicyRuleService from "~/service/operatingHoursPolicyRule";
 
 // ---------------------------------------------------------------------------- //
 

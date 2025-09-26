@@ -1,13 +1,14 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 
-import type { AppVariables } from "../app";
 import {
   insertArrivalWindowTemplateSchema,
   updateArrivalWindowTemplateSchema,
-} from "../../../../packages/db/src/schematics/scheduling";
-import { arrivalWindowTemplateFiltersInput } from "../schema/arrivalWindowTemplate";
-import ArrivalWindowTemplateService from "../service/arrivalWindowTemplate";
+} from "@safestreets/db/schema";
+
+import type { AppVariables } from "~/app";
+import { arrivalWindowTemplateFiltersInput } from "~/schema/arrivalWindowTemplate";
+import ArrivalWindowTemplateService from "~/service/arrivalWindowTemplate";
 
 // ---------------------------------------------------------------------------- //
 

@@ -1,12 +1,13 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { reset, seed } from "drizzle-seed";
 
-import { organization, user, workOrder, workOrderHistory } from "../schema";
-import * as auth from "../schematics/auth-schema";
-import * as operations from "../schematics/operations";
+import { env } from "~/env";
+import { organization, user, workOrder, workOrderHistory } from "~/schema";
+import * as auth from "~/schematics/auth-schema";
+import * as operations from "~/schematics/operations";
 
 async function main() {
-  const url = process.env.PRIMARY_DATABASE_URL ?? "";
+  const url = env.PRIMARY_DATABASE_URL;
 
   const db = drizzle({ connection: url, casing: "snake_case" });
 

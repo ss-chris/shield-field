@@ -4,8 +4,8 @@ import z from "zod";
 
 import { insertUserSchema, updateUserSchema } from "@safestreets/db/schema";
 
-import { userFiltersInput } from "../schema/user";
-import UserService from "../service/user";
+import { userFiltersInput } from "~/schema/user";
+import UserService from "~/service/user";
 
 const userService = new UserService();
 

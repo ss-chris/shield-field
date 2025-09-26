@@ -22,7 +22,7 @@ import type {
   purchaseOrderFilters,
   purchaseOrderLineItemFilters,
   warehouseProductFilters,
-} from "../schema/inventory";
+} from "~/schema/inventory";
 import {
   posteFiltersInput,
   purchaseOrderFiltersInput,
@@ -31,8 +31,8 @@ import {
   warehouseFiltersInput,
   warehouseProductFiltersInput,
   warehouseProductTransactionFiltersInput,
-} from "../schema/inventory";
-import InventoryService from "../service/inventory";
+} from "~/schema/inventory";
+import InventoryService from "~/service/inventory";
 
 const inventoryService = new InventoryService();
 
