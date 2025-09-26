@@ -6,6 +6,7 @@ import z from "zod";
 import { initAuth } from "@safestreets/auth";
 
 import { env } from "./env";
+import inventoryRouter from "./route/inventory";
 
 const auth = initAuth({
   baseUrl: "http://localhost:5173",
@@ -68,6 +69,7 @@ export const app = new Hono<{
     if (!user) return c.body(null, 401);
 
     return c.json({ session, user });
-  });
+  })
+  .route("/inventory", inventoryRouter);
 
 export type App = typeof app;

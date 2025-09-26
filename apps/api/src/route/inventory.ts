@@ -12,9 +12,8 @@ import {
   insertPurchaseOrderShipmentSchema,
   insertWarehouseProductSchema,
   insertWarehouseSchema,
-  selectPurchaseOrderSchema,
-  selectWarehouseSchema,
   updatePurchaseOrderLineItemSchema,
+  updatePurchaseOrderSchema,
   updatePurchaseOrderShipmentSchema,
   updateWarehouseSchema,
 } from "@safestreets/db/schema";
@@ -45,34 +44,30 @@ const inventoryRouter = new Hono()
     const id = c.req.param("id");
     try {
       const warehouse = await inventoryService.getWarehouse(parseInt(id));
-      return c.json({
-        data: warehouse,
-        success: true,
-      });
+      return c.json({ data: warehouse }, 200);
     } catch (error) {
-      return c.json({
-        error: "Unable to fetch Warehouse with id " + id,
-        success: false,
-      });
+      return c.json({ error: "Unable to fetch Warehouse with id " + id }, 500);
     }
   })
 
   .get("/warehouse", zValidator("query", warehouseFiltersInput), async (c) => {
     const filters = c.req.valid("query");
 
+    console.log(process.env.PRIMARY_DATABASE_URL);
+
     try {
       const warehouses = await inventoryService.listWarehouses(filters);
-      return c.json({
-        data: warehouses,
-        limit: filters.limit,
-        offset: filters.offset,
-        success: true,
-      });
+      return c.json(
+        {
+          data: warehouses,
+          limit: filters.limit,
+          offset: filters.offset,
+        },
+        200,
+      );
     } catch (error) {
-      return c.json({
-        error: "Unable to fetch Warehouses",
-        success: false,
-      });
+      console.error("list warehouses failed ", error);
+      return c.json({ error: "Unable to fetch Warehouses - " + error }, 500);
     }
   })
 
@@ -81,16 +76,10 @@ const inventoryRouter = new Hono()
 
     try {
       const result = await inventoryService.createWarehouse(warehouse);
-      return c.json({
-        data: result,
-        success: true,
-      });
+      return c.json({ data: result }, 200);
     } catch (error) {
       console.error("create warehouse failed", error);
-      return c.json({
-        error: "Unable to create Warehouse: " + error,
-        success: false,
-      });
+      return c.json({ error: "Unable to create Warehouse: " + error }, 500);
     }
   })
 
@@ -107,15 +96,10 @@ const inventoryRouter = new Hono()
           parseInt(id),
         );
 
-        return c.json({
-          data: result,
-          success: true,
-        });
+        return c.json({ data: result });
       } catch (error) {
-        return c.json({
-          error: "Unable to update Warehouse",
-          success: false,
-        });
+        console.error("get warehouse failed ", error);
+        return c.json({ error: "Unable to update Warehouse" }, 500);
       }
     },
   )
@@ -131,15 +115,9 @@ const inventoryRouter = new Hono()
       try {
         const warehouseProducts =
           await inventoryService.listWarehouseProducts(filters);
-        return c.json({
-          data: warehouseProducts,
-          success: true,
-        });
+        return c.json({ data: warehouseProducts });
       } catch (error) {
-        return c.json({
-          error: "Unable to fetch Warehouse Products",
-          success: false,
-        });
+        return c.json({ error: "Unable to fetch Warehouse Products" }, 500);
       }
     },
   )
@@ -155,15 +133,9 @@ const inventoryRouter = new Hono()
           warehouseProductInput,
         );
 
-        return c.json({
-          data: result,
-          success: true,
-        });
+        return c.json({ data: result });
       } catch (error) {
-        return c.json({
-          error: "Unable to create Warehouse Product",
-          success: false,
-        });
+        return c.json({ error: "Unable to create Warehouse Product" }, 500);
       }
     },
   )
@@ -179,15 +151,12 @@ const inventoryRouter = new Hono()
       try {
         const warehouseProductTransactions =
           await inventoryService.listWarehouseProductTransactions(filters);
-        return c.json({
-          data: warehouseProductTransactions,
-          success: true,
-        });
+        return c.json({ data: warehouseProductTransactions }, 200);
       } catch (error) {
-        return c.json({
-          error: "Unable to fetch Warehouse Product Transactions",
-          success: false,
-        });
+        return c.json(
+          { error: "Unable to fetch Warehouse Product Transactions" },
+          500,
+        );
       }
     },
   )
@@ -199,15 +168,9 @@ const inventoryRouter = new Hono()
 
     try {
       const purchaseOrders = await inventoryService.listPurchaseOrders(filters);
-      return c.json({
-        data: purchaseOrders,
-        success: true,
-      });
+      return c.json({ data: purchaseOrders }, 200);
     } catch (error) {
-      return c.json({
-        error: "Unable to fetch Purchase Orders",
-        success: false,
-      });
+      return c.json({ error: "Unable to fetch Purchase Orders" }, 500);
     }
   })
 
@@ -218,21 +181,15 @@ const inventoryRouter = new Hono()
       const result =
         await inventoryService.createPurchaseOrder(purchaseOrderInput);
 
-      return c.json({
-        data: result,
-        success: true,
-      });
+      return c.json({ data: result }, 200);
     } catch (error) {
-      return c.json({
-        error: "Unable to create Purchase Order",
-        success: false,
-      });
+      return c.json({ error: "Unable to create Purchase Order" }, 500);
     }
   })
 
   .patch(
     "/po/:id",
-    zValidator("json", selectPurchaseOrderSchema),
+    zValidator("json", updatePurchaseOrderSchema),
     async (c) => {
       const purchaseOrderInput = c.req.valid("json");
       const id = c.req.param("id");
@@ -243,15 +200,12 @@ const inventoryRouter = new Hono()
           parseInt(id),
         );
 
-        return c.json({
-          data: result,
-          success: true,
-        });
+        return c.json({ data: result }, 200);
       } catch (error) {
-        return c.json({
-          error: "Unable to update Purchase Order - " + error,
-          success: false,
-        });
+        return c.json(
+          { error: "Unable to update Purchase Order - " + error },
+          500,
+        );
       }
     },
   )
@@ -322,14 +276,14 @@ const inventoryRouter = new Hono()
       console.log(
         `[Inventory] created ${warehousePoMap.size} new POs, ${createPolis.length} new POLIs`,
       );
-      return c.json({
-        success: true,
-      });
+      return c.json({}, 200);
     } catch (error) {
-      return c.json({
-        error: "Purchase Order creation process failed with error: " + error,
-        success: false,
-      });
+      return c.json(
+        {
+          error: "Purchase Order creation process failed with error: " + error,
+        },
+        500,
+      );
     }
   })
 
@@ -344,15 +298,12 @@ const inventoryRouter = new Hono()
       try {
         const purchaseOrderLineItems =
           await inventoryService.listPurchaseOrderLineItems(filters);
-        return c.json({
-          data: purchaseOrderLineItems,
-          success: true,
-        });
+        return c.json({ data: purchaseOrderLineItems }, 200);
       } catch (error) {
-        return c.json({
-          error: "Unable to fetch Purchase Order Line Items",
-          success: false,
-        });
+        return c.json(
+          { error: "Unable to fetch Purchase Order Line Items" },
+          500,
+        );
       }
     },
   )
@@ -367,15 +318,12 @@ const inventoryRouter = new Hono()
         const result =
           await inventoryService.createPurchaseOrderLineItems(poliInput);
 
-        return c.json({
-          data: result,
-          success: true,
-        });
+        return c.json({ data: result }, 200);
       } catch (error) {
-        return c.json({
-          error: "Unable to create Purchase Order Line Items",
-          success: false,
-        });
+        return c.json(
+          { error: "Unable to create Purchase Order Line Items" },
+          500,
+        );
       }
     },
   )
@@ -390,15 +338,12 @@ const inventoryRouter = new Hono()
         const result =
           await inventoryService.updatePurchaseOrderLineItems(poliInput);
 
-        return c.json({
-          data: result,
-          success: true,
-        });
+        return c.json({ data: result }, 200);
       } catch (error) {
-        return c.json({
-          error: "Unable to update Purchase Order Line Items - " + error,
-          success: false,
-        });
+        return c.json(
+          { error: "Unable to update Purchase Order Line Items - " + error },
+          500,
+        );
       }
     },
   )
@@ -414,15 +359,12 @@ const inventoryRouter = new Hono()
       try {
         const purchaseOrderShipments =
           await inventoryService.listPurchaseOrderShipments(filters);
-        return c.json({
-          data: purchaseOrderShipments,
-          success: true,
-        });
+        return c.json({ data: purchaseOrderShipments }, 200);
       } catch (error) {
-        return c.json({
-          error: "Unable to fetch Purchase Order Shipments",
-          success: false,
-        });
+        return c.json(
+          { error: "Unable to fetch Purchase Order Shipments" },
+          500,
+        );
       }
     },
   )
@@ -438,15 +380,12 @@ const inventoryRouter = new Hono()
           purchaseOrderShipmentInput,
         );
 
-        return c.json({
-          data: result,
-          success: true,
-        });
+        return c.json({ data: result }, 200);
       } catch (error) {
-        return c.json({
-          error: "Unable to create Purchase Order Shipment",
-          success: false,
-        });
+        return c.json(
+          { error: "Unable to create Purchase Order Shipment" },
+          500,
+        );
       }
     },
   )
@@ -464,15 +403,12 @@ const inventoryRouter = new Hono()
           parseInt(id),
         );
 
-        return c.json({
-          data: result,
-          success: true,
-        });
+        return c.json({ data: result }, 200);
       } catch (error) {
-        return c.json({
-          error: "Unable to update Purchase Order Shipment",
-          success: false,
-        });
+        return c.json(
+          { error: "Unable to update Purchase Order Shipment" },
+          500,
+        );
       }
     },
   )
@@ -485,15 +421,12 @@ const inventoryRouter = new Hono()
     try {
       const postes =
         await inventoryService.listPurchaseOrderShipmentTrackingEvents(filters);
-      return c.json({
-        data: postes,
-        success: true,
-      });
+      return c.json({ data: postes }, 200);
     } catch (error) {
-      return c.json({
-        error: "Unable to fetch Purchase Order Shipment Tracking Events",
-        success: false,
-      });
+      return c.json(
+        { error: "Unable to fetch Purchase Order Shipment Tracking Events" },
+        500,
+      );
     }
   });
 
