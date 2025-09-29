@@ -265,6 +265,10 @@ importers:
         version: 5.9.2
 
   apps/web:
+    dependencies:
+      '@lucide/svelte':
+        specifier: ^0.544.0
+        version: 0.544.0(svelte@5.39.5)
     devDependencies:
       '@eslint/js':
         specifier: ^9.22.0
@@ -2134,6 +2138,11 @@ packages:
 
   '@levischuck/tiny-cbor@0.2.11':
     resolution: {integrity: sha512-llBRm4dT4Z89aRsm6u2oEZ8tfwL/2l6BwpZ7JcyieouniDECM5AqNgr/y08zalEIvW3RSK4upYyybDcmjXqAow==}
+
+  '@lucide/svelte@0.544.0':
+    resolution: {integrity: sha512-9f9O6uxng2pLB01sxNySHduJN3HTl5p0HDu4H26VR51vhZfiMzyOMe9Mhof3XAk4l813eTtl+/DYRvGyoRR+yw==}
+    peerDependencies:
+      svelte: ^5
 
   '@mrleebo/prisma-ast@0.13.0':
     resolution: {integrity: sha512-VxS+okLpNp6YUDLz3rAXv6sE8G4W5cX039bumkPub65xRr9BFxjHaT5ebX4DsiixIGaBwitjWTvx3mAbyI2EUQ==}
@@ -10188,6 +10197,10 @@ snapshots:
 
   '@levischuck/tiny-cbor@0.2.11': {}
 
+  '@lucide/svelte@0.544.0(svelte@5.39.5)':
+    dependencies:
+      svelte: 5.39.5
+
   '@mrleebo/prisma-ast@0.13.0':
     dependencies:
       chevrotain: 10.5.0
@@ -11174,7 +11187,7 @@ snapshots:
       debug: 2.6.9
       invariant: 2.2.4
       metro: 0.82.4(bufferutil@4.0.8)(utf-8-validate@6.0.4)
-      metro-config: 0.82.4(bufferutil@4.0.8)
+      metro-config: 0.82.4(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       metro-core: 0.82.4
       semver: 7.7.2
     transitivePeerDependencies:
@@ -14905,6 +14918,21 @@ snapshots:
       - supports-color
       - utf-8-validate
 
+  metro-config@0.82.4(bufferutil@4.0.8)(utf-8-validate@6.0.4):
+    dependencies:
+      connect: 3.7.0
+      cosmiconfig: 5.2.1
+      flow-enums-runtime: 0.0.6
+      jest-validate: 29.7.0
+      metro: 0.82.4(bufferutil@4.0.8)(utf-8-validate@6.0.4)
+      metro-cache: 0.82.4
+      metro-core: 0.82.4
+      metro-runtime: 0.82.4
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
   metro-core@0.82.4:
     dependencies:
       flow-enums-runtime: 0.0.6
@@ -15089,7 +15117,7 @@ snapshots:
       metro-babel-transformer: 0.82.4
       metro-cache: 0.82.4
       metro-cache-key: 0.82.4
-      metro-config: 0.82.4(bufferutil@4.0.8)
+      metro-config: 0.82.4(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       metro-core: 0.82.4
       metro-file-map: 0.82.4
       metro-resolver: 0.82.4

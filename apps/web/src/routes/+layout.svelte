@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import Sidebar from '$lib/components/sidebar.svelte';
 
 	let { children } = $props();
 </script>
@@ -10,7 +11,12 @@
 	<title>Shield Field</title>
 </svelte:head>
 
-{@render children?.()}
+<Sidebar />
+<main class="py-10 lg:pl-56">
+	<div class="px-4 sm:px-6 lg:px-8">
+		{@render children?.()}
+	</div>
+</main>
 
 <style lang="postcss">
 	@reference "tailwindcss";
