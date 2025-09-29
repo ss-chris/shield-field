@@ -9,7 +9,7 @@ import UserService from "~/service/user";
 
 const userService = new UserService();
 
-export const userRouter = new Hono()
+const userRouter = new Hono()
   .post(
     "/location/log",
     zValidator(
@@ -91,3 +91,5 @@ export const userRouter = new Hono()
       return c.json({ message: error }, 500);
     }
   });
+
+export default userRouter;
