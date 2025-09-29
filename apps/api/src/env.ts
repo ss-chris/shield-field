@@ -3,7 +3,7 @@ import z from "zod";
 
 export const env = createEnv({
   server: {
-    API_PORT: z.number(),
+    API_PORT: z.coerce.number(),
     PRIMARY_DATABASE_URL: z.url().startsWith("postgresql://"),
     READ_CLONE_DATABASE_URL: z.url().startsWith("postgresql://"),
     MICROSOFT_CLIENT_ID: z.string().length(36),
