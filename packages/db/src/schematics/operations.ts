@@ -21,6 +21,19 @@ export const workOrderStatusEnum = pgEnum("work_order_statuses", [
   "cancelled",
 ]);
 
+export const workOrderCannotCompleteReasonEnum = pgEnum(
+  "work_order_cannot_complete_reasons",
+  [
+    "dry_run_customer_reschedule",
+    "dry_run_customer_no_show",
+    "dry_run_customer_cancel",
+    "dry_run_review_quote",
+    "adt_api_salesforce_down",
+    "no_power_or_internet",
+    "poo_nape_issue",
+  ],
+);
+
 export const workOrderTypeEnum = pgEnum("work_order_types", [
   "installation",
   "maintenance",
@@ -29,12 +42,45 @@ export const workOrderTypeEnum = pgEnum("work_order_types", [
   "removal",
 ]);
 
+export const workOrderLineItemStatusEnum = pgEnum(
+  "work_order_line_item_statuses",
+  [
+    "completed_mounted_and_programmed",
+    "canceled_not_used",
+    "left_not_mounted_or_programmed",
+    "mounted_not_programmed",
+    "ordered_out_of_stock",
+    "programmed_hvac_needed",
+    "programmed_not_installed",
+  ],
+);
+
+export const customerStatusEnum = pgEnum("customer_statuses", [
+  "open",
+  "scheduled",
+  "installed",
+]);
+
 // ============== Tables ==============
+
+export const customer = pgTable("customer", (t) => ({
+  id: t.serial().primaryKey(),
+  externalId: t.text().notNull(),
+  adtConfirmationNumber: t.text(),
+  status: customerStatusEnum().notNull(),
+  source: t.text(),
+  sourceDate: t.date(),
+  soldById: t.text(),
+  locationId: t.integer().references(() => location.id),
+  organizationId: t.text().references(() => organization.id),
+  ...baseFields,
+}));
 
 export const workOrder = pgTable("work_order", (t) => ({
   id: t.serial().primaryKey(),
-  type: t.text(),
-  status: t.text(),
+  type: workOrderTypeEnum().notNull(),
+  status: workOrderStatusEnum().notNull(),
+  cannotCompleteReason: workOrderCannotCompleteReasonEnum(),
   source: t.text(),
   sourceDate: t.date(),
   calculatedDuration: t.integer(),
@@ -45,6 +91,16 @@ export const workOrder = pgTable("work_order", (t) => ({
   userId: t.text().references(() => user.id),
   locationId: t.integer().references(() => location.id),
   organizationId: t.text().references(() => organization.id),
+  ...baseFields,
+}));
+
+export const workOrderLineItem = pgTable("work_order_line_item", (t) => ({
+  id: t.serial().primaryKey(),
+  productId: t.integer().notNull(),
+  status: t.text(),
+  confirmationStatus: t.text(),
+  soldById: t.text(),
+  installedById: t.integer().references(() => user.id),
   ...baseFields,
 }));
 

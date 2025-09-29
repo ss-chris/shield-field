@@ -1,6 +1,6 @@
 import type { z } from "zod/v4";
 import { relations } from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable } from "drizzle-orm/pg-core";
 import {
   createInsertSchema,
   createSelectSchema,
@@ -9,8 +9,32 @@ import {
 
 import { organization } from "./auth-schema";
 import { baseFields } from "./base-fields";
+import { location } from "./locations";
+import { customer, workOrder } from "./operations";
+
+// ============== Enums ==============
+
+export const appointmentStatusEnum = pgEnum("appointment_statuses", [
+  "pending",
+  "scheduled",
+  "onRoute",
+  "in_progress",
+  "completed",
+  "cancelled",
+]);
 
 // ============== Tables ==============
+
+export const appointment = pgTable("appointment", (t) => ({
+  id: t.serial().primaryKey(),
+  externalId: t.text(),
+  status: appointmentStatusEnum().notNull(),
+  locationId: t.integer().references(() => location.id),
+  customerId: t.integer().references(() => customer.id),
+  workOrderId: t.integer().references(() => workOrder.id),
+  organizationId: t.text().references(() => organization.id),
+  ...baseFields,
+}));
 
 /**
  * Defines the PATTERN for creating windows. This is the core of the dynamic
