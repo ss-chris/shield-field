@@ -42,5 +42,8 @@
 		"typescript": "catalog:",
 		"vite": "^7.0.4",
 		"vite-plugin-devtools-json": "^1.0.0"
+	},
+	"dependencies": {
+		"@lucide/svelte": "^0.544.0"
 	}
 }
