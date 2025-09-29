@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
-		const res = await client.session.$get({});
+		const res = await client.session.$get();
 		console.log(res);
 	});
 </script>
