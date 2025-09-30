@@ -53,7 +53,9 @@
     "MICROSOFT_CLIENT_SECRET",
     "MICROSOFT_TENANT_ID",
     "AUTH_REDIRECT_PROXY_URL",
-    "AUTH_SECRET"
+    "AUTH_SECRET",
+    "NO_WEB_AUTH",
+    "PUBLIC_MAPBOX_KEY"
   ],
   "globalPassThroughEnv": ["NODE_ENV", "CI", "npm_lifecycle_event"]
 }

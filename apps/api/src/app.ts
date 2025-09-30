@@ -7,16 +7,16 @@ import { initAuth } from "@safestreets/auth";
 
 import { env } from "~/env";
 import appointmentRouter from "~/route/appointment";
-import { arrivalWindowTemplateRouter } from "~/route/arrivalWindowTemplate";
+import arrivalWindowTemplateRouter from "~/route/arrivalWindowTemplate";
 import customerRouter from "~/route/customer";
 import inventoryRouter from "~/route/inventory";
-import { operatingHoursPolicyRouter } from "~/route/operatingHoursPolicy";
-import { operatingHoursPolicyRuleRouter } from "~/route/operatingHoursPolicyRule";
+import operatingHoursPolicyRouter from "~/route/operatingHoursPolicy";
+import operatingHoursPolicyRuleRouter from "~/route/operatingHoursPolicyRule";
 import productRouter from "~/route/product";
-import { schedulingRouter } from "~/route/scheduling";
-import { schedulingPolicyRouter } from "~/route/schedulingPolicy";
-import { territoryRouter } from "~/route/territory";
-import { userRouter } from "~/route/user";
+import schedulingRouter from "~/route/scheduling";
+import schedulingPolicyRouter from "~/route/schedulingPolicy";
+import territoryRouter from "~/route/territory";
+import userRouter from "~/route/user";
 import workOrderRouter from "~/route/workOrder";
 import workOrderLineItemRouter from "~/route/workOrderLineItem";
 
