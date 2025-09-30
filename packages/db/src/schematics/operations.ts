@@ -1,4 +1,3 @@
-import type { z } from "zod/v4";
 import { relations } from "drizzle-orm";
 import { pgEnum, pgTable } from "drizzle-orm/pg-core";
 import {
@@ -6,9 +5,11 @@ import {
   createSelectSchema,
   createUpdateSchema,
 } from "drizzle-zod";
+import { z } from "zod/v4";
 
 import { organization, user } from "./auth-schema";
 import { baseFields, baseFieldsReadOnly } from "./base-fields";
+import { product } from "./inventory";
 import { location } from "./locations";
 
 // ============== Enums ==============
@@ -66,11 +67,12 @@ export const customerStatusEnum = pgEnum("customer_statuses", [
 export const customer = pgTable("customer", (t) => ({
   id: t.serial().primaryKey(),
   externalId: t.text().notNull(),
-  adtConfirmationNumber: t.text(),
+  confirmationNumber: t.text(),
   status: customerStatusEnum().notNull(),
   source: t.text(),
   sourceDate: t.date(),
   soldById: t.text(),
+  installDate: t.date(),
   locationId: t.integer().references(() => location.id),
   organizationId: t.text().references(() => organization.id),
   ...baseFields,
@@ -88,7 +90,10 @@ export const workOrder = pgTable("work_order", (t) => ({
   salesNote: t.text(),
   techNote: t.text(),
   navigationNote: t.text(),
-  userId: t.text().references(() => user.id),
+  userId: t
+    .text()
+    .references(() => user.id)
+    .notNull(),
   locationId: t.integer().references(() => location.id),
   organizationId: t.text().references(() => organization.id),
   ...baseFields,
@@ -96,10 +101,18 @@ export const workOrder = pgTable("work_order", (t) => ({
 
 export const workOrderLineItem = pgTable("work_order_line_item", (t) => ({
   id: t.serial().primaryKey(),
-  productId: t.integer().notNull(),
-  status: t.text(),
+  status: workOrderLineItemStatusEnum().notNull(),
   confirmationStatus: t.text(),
+  quantity: t.integer().notNull(),
   soldById: t.text(),
+  productId: t
+    .integer()
+    .references(() => product.id)
+    .notNull(),
+  workOrderId: t
+    .integer()
+    .references(() => workOrder.id)
+    .notNull(),
   installedById: t.integer().references(() => user.id),
   ...baseFields,
 }));
@@ -161,6 +174,29 @@ export const updateWorkOrderSchema = createUpdateSchema(workOrder);
 export type InsertWorkOrder = z.infer<typeof insertWorkOrderSchema>;
 export type SelectWorkOrder = z.infer<typeof selectWorkOrderSchema>;
 export type UpdateWorkOrder = z.infer<typeof updateWorkOrderSchema>;
+
+export const insertCustomerSchema = createInsertSchema(customer);
+export const selectCustomerSchema = createSelectSchema(customer);
+export const updateCustomerSchema = createUpdateSchema(customer);
+export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
+export type SelectCustomer = z.infer<typeof selectCustomerSchema>;
+export type UpdateCustomer = z.infer<typeof updateCustomerSchema>;
+
+export const insertWorkOrderLineItemSchema =
+  createInsertSchema(workOrderLineItem);
+export const selectWorkOrderLineItemSchema =
+  createSelectSchema(workOrderLineItem);
+export const updateWorkOrderLineItemSchema =
+  createUpdateSchema(workOrderLineItem);
+export type InsertWorkOrderLineItem = z.infer<
+  typeof insertWorkOrderLineItemSchema
+>;
+export type SelectWorkOrderLineItem = z.infer<
+  typeof selectWorkOrderLineItemSchema
+>;
+export type UpdateWorkOrderLineItem = z.infer<
+  typeof updateWorkOrderLineItemSchema
+>;
 
 export const insertWorkOrderHistorySchema =
   createInsertSchema(workOrderHistory);

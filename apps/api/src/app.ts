@@ -5,8 +5,20 @@ import z from "zod";
 
 import { initAuth } from "@safestreets/auth";
 
-import { env } from "./env";
-import inventoryRouter from "./route/inventory";
+import { env } from "~/env";
+import appointmentRouter from "~/route/appointment";
+import { arrivalWindowTemplateRouter } from "~/route/arrivalWindowTemplate";
+import customerRouter from "~/route/customer";
+import inventoryRouter from "~/route/inventory";
+import { operatingHoursPolicyRouter } from "~/route/operatingHoursPolicy";
+import { operatingHoursPolicyRuleRouter } from "~/route/operatingHoursPolicyRule";
+import productRouter from "~/route/product";
+import { schedulingRouter } from "~/route/scheduling";
+import { schedulingPolicyRouter } from "~/route/schedulingPolicy";
+import { territoryRouter } from "~/route/territory";
+import { userRouter } from "~/route/user";
+import workOrderRouter from "~/route/workOrder";
+import workOrderLineItemRouter from "~/route/workOrderLineItem";
 
 const auth = initAuth({
   baseUrl: "http://localhost:5173",
@@ -70,6 +82,18 @@ export const app = new Hono<{
 
     return c.json({ session, user });
   })
-  .route("/inventory", inventoryRouter);
+  .route("/inventory", inventoryRouter)
+  .route("/appointment", appointmentRouter)
+  .route("/arrival-window-template", arrivalWindowTemplateRouter)
+  .route("/customer", customerRouter)
+  .route("/operating-hours-policy", operatingHoursPolicyRouter)
+  .route("/operating-hours-policy-rule", operatingHoursPolicyRuleRouter)
+  .route("/product", productRouter)
+  .route("/scheduling", schedulingRouter)
+  .route("/scheduling-policy", schedulingPolicyRouter)
+  .route("/territory", territoryRouter)
+  .route("/user", userRouter)
+  .route("/work-order", workOrderRouter)
+  .route("/work-order-line-item", workOrderLineItemRouter);
 
 export type App = typeof app;

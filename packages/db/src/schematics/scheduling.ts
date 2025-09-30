@@ -195,6 +195,13 @@ export type UpdateArrivalWindowTemplate = z.infer<
   typeof updateArrivalWindowTemplateSchema
 >;
 
+export const insertAppointmentSchema = createInsertSchema(appointment);
+export const selectAppointmentSchema = createSelectSchema(appointment);
+export const updateAppointmentSchema = createUpdateSchema(appointment);
+export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
+export type SelectAppointment = z.infer<typeof selectAppointmentSchema>;
+export type UpdateAppointment = z.infer<typeof updateAppointmentSchema>;
+
 export const insertOperatingHoursPolicySchema =
   createInsertSchema(operatingHoursPolicy);
 export const selectOperatingHoursPolicySchema =

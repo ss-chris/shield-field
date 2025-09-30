@@ -7,6 +7,7 @@ import {
 } from "drizzle-zod";
 import { z } from "zod/v4";
 
+import { user } from "./auth-schema";
 import { baseFields } from "./base-fields";
 import { location } from "./locations";
 import { workOrder } from "./operations";
@@ -59,6 +60,7 @@ export const warehouse = pgTable("warehouse", (t) => ({
   integrationType: t.text().notNull(),
   active: t.boolean().default(true),
   keepStocked: t.boolean().default(true),
+  userId: t.text().references(() => user.id),
   shippingLocationId: t
     .integer()
     .references(() => location.id)
