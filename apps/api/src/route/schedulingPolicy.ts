@@ -15,7 +15,7 @@ const schedulingPolicyService = new SchedulingPolicyService();
 type AppEnv = {
   Variables: AppVariables;
 };
-export const schedulingPolicyRouter = new Hono<AppEnv>()
+const schedulingPolicyRouter = new Hono<AppEnv>()
 
   .get("/:id", async (c) => {
     const id = c.req.param("id");
@@ -93,3 +93,5 @@ export const schedulingPolicyRouter = new Hono<AppEnv>()
       return c.json({ message: error }, 500);
     }
   });
+
+export default schedulingPolicyRouter;

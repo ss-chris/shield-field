@@ -17,7 +17,7 @@ const operatingHoursPolicyService = new OperatingHoursPolicyService();
 type AppEnv = {
   Variables: AppVariables;
 };
-export const operatingHoursPolicyRouter = new Hono<AppEnv>()
+const operatingHoursPolicyRouter = new Hono<AppEnv>()
 
   .get("/:id", async (c) => {
     const id = c.req.param("id");
@@ -104,3 +104,5 @@ export const operatingHoursPolicyRouter = new Hono<AppEnv>()
       return c.json({ message: error }, 500);
     }
   });
+
+export default operatingHoursPolicyRouter;

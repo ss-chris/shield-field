@@ -11,7 +11,7 @@ import TerritoryService from "~/service/territory";
 
 const territoryService = new TerritoryService();
 
-export const territoryRouter = new Hono()
+const territoryRouter = new Hono()
   .get("/:id", async (c) => {
     const id = c.req.param("id");
 
@@ -74,3 +74,5 @@ export const territoryRouter = new Hono()
       return c.json({ message: error }, 500);
     }
   });
+
+export default territoryRouter;

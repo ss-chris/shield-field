@@ -6,7 +6,7 @@ import ProductService from "~/service/product";
 
 const productService = new ProductService();
 
-export const productRouter = new Hono().get(
+const productRouter = new Hono().get(
   "/",
   zValidator("query", productFiltersInput),
   async (c) => {

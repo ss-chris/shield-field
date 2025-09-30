@@ -17,7 +17,7 @@ const arrivalWindowTemplateService = new ArrivalWindowTemplateService();
 type AppEnv = {
   Variables: AppVariables;
 };
-export const arrivalWindowTemplateRouter = new Hono<AppEnv>()
+const arrivalWindowTemplateRouter = new Hono<AppEnv>()
 
   .get("/:id", async (c) => {
     const id = c.req.param("id");
@@ -109,3 +109,5 @@ export const arrivalWindowTemplateRouter = new Hono<AppEnv>()
       return c.json({ message: error }, 500);
     }
   });
+
+export default arrivalWindowTemplateRouter;

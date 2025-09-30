@@ -4,7 +4,7 @@ import { SchedulingService } from "~/service/scheduling";
 
 // ----- Slots Routes -------------- //
 
-export const schedulingRouter = new Hono()
+const schedulingRouter = new Hono()
 
   .get("/slots", async (c) => {
     const slots = await SchedulingService.getSlots();
@@ -17,3 +17,5 @@ export const schedulingRouter = new Hono()
     const result = await SchedulingService.getNextSlot(testTime);
     return c.json(result);
   });
+
+export default schedulingRouter;
