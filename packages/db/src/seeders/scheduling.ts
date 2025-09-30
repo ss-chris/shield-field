@@ -3,14 +3,23 @@ import { reset, seed } from "drizzle-seed";
 
 import { env } from "~/env";
 import {
+  address,
+  appointment,
   arrivalWindowTemplate,
+  customer,
+  location,
   operatingHoursPolicy,
   operatingHoursPolicyRule,
   organization,
   schedulingPolicy,
+  user,
+  workOrder,
 } from "~/schema";
 import * as auth from "~/schematics/auth-schema";
+import * as locations from "~/schematics/locations";
+import * as operations from "~/schematics/operations";
 import * as scheduling from "~/schematics/scheduling";
+import { STATE_CODES_TO_NAMES } from "~/utils/staticFields";
 
 async function main() {
   const url = env.PRIMARY_DATABASE_URL;
@@ -23,6 +32,12 @@ async function main() {
     operatingHoursPolicy,
     operatingHoursPolicyRule,
     schedulingPolicy,
+    appointment,
+    customer,
+    workOrder,
+    location,
+    address,
+    user,
   });
 
   await seed(db, {
@@ -31,6 +46,12 @@ async function main() {
     operatingHoursPolicy: scheduling.operatingHoursPolicy,
     operatingHoursPolicyRule: scheduling.operatingHoursPolicyRule,
     schedulingPolicy: scheduling.schedulingPolicy,
+    appointment: scheduling.appointment,
+    customer: operations.customer,
+    workOrder: operations.workOrder,
+    location: locations.location,
+    address: locations.address,
+    user: auth.user,
   }).refine((f) => ({
     organization: {
       columns: {
@@ -45,6 +66,41 @@ async function main() {
         }),
       },
       count: 1,
+    },
+    address: {
+      columns: {
+        line1: f.streetAddress(),
+        line2: f.valuesFromArray({
+          values: ["STE", "APT", "BLD"],
+        }),
+        line3: f.int({ minValue: 1, maxValue: 30 }),
+        city: f.city(),
+        state: f.state(),
+        stateCode: f.valuesFromArray({
+          values: Object.keys(STATE_CODES_TO_NAMES),
+        }),
+        zip: f.postcode(),
+        county: f.valuesFromArray({
+          values: Object.values(STATE_CODES_TO_NAMES).map((t) => t + " County"),
+        }),
+      },
+    },
+    location: {
+      columns: {
+        name: f.valuesFromArray({
+          values: ["Main Office", "Warehouse 17", "Service Center"],
+        }),
+        addressId: f.int({ minValue: 1, maxValue: 10 }),
+      },
+    },
+    user: {
+      columns: {
+        id: f.uuid(),
+        name: f.fullName(),
+        email: f.email(),
+        emailVerified: f.default({ defaultValue: true }),
+        image: f.default({ defaultValue: null }),
+      },
     },
     arrivalWindowTemplate: {
       columns: {
@@ -83,6 +139,46 @@ async function main() {
       columns: {
         name: f.valuesFromArray({
           values: ["Standard Policy", "Premium Policy", "Basic Policy"],
+        }),
+      },
+    },
+    customer: {
+      columns: {
+        externalId: f.uuid(),
+        confirmationNumber: f.int({ minValue: 11111, maxValue: 99999 }),
+        status: f.valuesFromArray({
+          values: operations.customerStatusEnum.enumValues,
+        }),
+        source: f.default({ defaultValue: "SafeStreets" }),
+        sourceDate: f.date(),
+        soldById: f.uuid(),
+        installDate: f.date(),
+      },
+    },
+    workOrder: {
+      columns: {
+        type: f.valuesFromArray({
+          values: operations.workOrderTypeEnum.enumValues,
+        }),
+        status: f.valuesFromArray({
+          values: operations.workOrderStatusEnum.enumValues,
+        }),
+        source: f.valuesFromArray({
+          values: ["client", "shnield fjield", "aliens"],
+        }),
+        sourceDate: f.default({ defaultValue: new Date() }),
+        calculatedDuration: f.default({ defaultValue: 240 }),
+        totalTimeWorked: f.int({ minValue: 0, maxValue: 240 }),
+        salesNote: f.default({ defaultValue: null }),
+        techNote: f.default({ defaultValue: null }),
+        navigationNote: f.default({ defaultValue: null }),
+      },
+    },
+    appointment: {
+      columns: {
+        externalId: f.uuid(),
+        status: f.valuesFromArray({
+          values: scheduling.appointmentStatusEnum.enumValues,
         }),
       },
     },

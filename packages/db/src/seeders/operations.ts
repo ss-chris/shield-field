@@ -2,9 +2,22 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { reset, seed } from "drizzle-seed";
 
 import { env } from "~/env";
-import { organization, user, workOrder, workOrderHistory } from "~/schema";
+import {
+  address,
+  customer,
+  location,
+  organization,
+  product,
+  user,
+  workOrder,
+  workOrderHistory,
+  workOrderLineItem,
+} from "~/schema";
 import * as auth from "~/schematics/auth-schema";
+import * as inventory from "~/schematics/inventory";
+import * as locations from "~/schematics/locations";
 import * as operations from "~/schematics/operations";
+import { STATE_CODES_TO_NAMES } from "~/utils/staticFields";
 
 async function main() {
   const url = env.PRIMARY_DATABASE_URL;
@@ -16,6 +29,11 @@ async function main() {
     user,
     workOrder,
     workOrderHistory,
+    customer,
+    workOrderLineItem,
+    product,
+    location,
+    address,
   });
 
   await seed(db, {
@@ -23,6 +41,11 @@ async function main() {
     user: auth.user,
     workOrder: operations.workOrder,
     workOrderHistory: operations.workOrderHistory,
+    customer: operations.customer,
+    workOrderLineItem: operations.workOrderLineItem,
+    product: inventory.product,
+    location: locations.location,
+    address: locations.address,
   }).refine((f) => ({
     user: {
       columns: {
@@ -47,13 +70,60 @@ async function main() {
       },
       count: 1,
     },
+    address: {
+      columns: {
+        line1: f.streetAddress(),
+        line2: f.valuesFromArray({
+          values: ["STE", "APT", "BLD"],
+        }),
+        line3: f.int({ minValue: 1, maxValue: 30 }),
+        city: f.city(),
+        state: f.state(),
+        stateCode: f.valuesFromArray({
+          values: Object.keys(STATE_CODES_TO_NAMES),
+        }),
+        zip: f.postcode(),
+        county: f.valuesFromArray({
+          values: Object.values(STATE_CODES_TO_NAMES).map((t) => t + " County"),
+        }),
+      },
+    },
+    location: {
+      columns: {
+        name: f.valuesFromArray({
+          values: ["Main Office", "Warehouse 17", "Service Center"],
+        }),
+        addressId: f.int({ minValue: 1, maxValue: 10 }),
+      },
+    },
+    customer: {
+      columns: {
+        externalId: f.uuid(),
+        confirmationNumber: f.int({ minValue: 11111, maxValue: 99999 }),
+        status: f.valuesFromArray({
+          values: operations.customerStatusEnum.enumValues,
+        }),
+        source: f.default({ defaultValue: "SafeStreets" }),
+        sourceDate: f.date(),
+        soldById: f.uuid(),
+        installDate: f.date(),
+      },
+    },
+    product: {
+      columns: {
+        externalId: f.uuid(),
+        name: f.valuesFromArray({
+          values: ["camera", "doorbell", "sensor"],
+        }),
+      },
+    },
     workOrder: {
       columns: {
         type: f.valuesFromArray({
-          values: ["service", "installation"],
+          values: operations.workOrderTypeEnum.enumValues,
         }),
         status: f.valuesFromArray({
-          values: ["open", "in progress", "complete"],
+          values: operations.workOrderStatusEnum.enumValues,
         }),
         source: f.valuesFromArray({
           values: ["client", "shnield fjield", "aliens"],
@@ -64,6 +134,18 @@ async function main() {
         salesNote: f.default({ defaultValue: null }),
         techNote: f.default({ defaultValue: null }),
         navigationNote: f.default({ defaultValue: null }),
+      },
+    },
+    workOrderLineItem: {
+      columns: {
+        status: f.valuesFromArray({
+          values: operations.workOrderLineItemStatusEnum.enumValues,
+        }),
+        confirmationStatus: f.valuesFromArray({
+          values: operations.workOrderLineItemConfirmationStatusEnum.enumValues,
+        }),
+        quantity: f.int({ minValue: 1, maxValue: 5 }),
+        soldById: f.uuid(),
       },
     },
     workOrderHistory: {

@@ -5,7 +5,7 @@ import {
   createSelectSchema,
   createUpdateSchema,
 } from "drizzle-zod";
-import { z } from "zod/v4";
+import z from "zod/v4";
 
 import { organization, user } from "./auth-schema";
 import { baseFields, baseFieldsReadOnly } from "./base-fields";
@@ -56,6 +56,11 @@ export const workOrderLineItemStatusEnum = pgEnum(
   ],
 );
 
+export const workOrderLineItemConfirmationStatusEnum = pgEnum(
+  "work_order_line_item_confirmation_statuses",
+  ["pending", "cancelled", "complete"],
+);
+
 export const customerStatusEnum = pgEnum("customer_statuses", [
   "open",
   "scheduled",
@@ -90,6 +95,10 @@ export const workOrder = pgTable("work_order", (t) => ({
   salesNote: t.text(),
   techNote: t.text(),
   navigationNote: t.text(),
+  customerId: t
+    .integer()
+    .references(() => customer.id)
+    .notNull(),
   userId: t
     .text()
     .references(() => user.id)
@@ -102,7 +111,7 @@ export const workOrder = pgTable("work_order", (t) => ({
 export const workOrderLineItem = pgTable("work_order_line_item", (t) => ({
   id: t.serial().primaryKey(),
   status: workOrderLineItemStatusEnum().notNull(),
-  confirmationStatus: t.text(),
+  confirmationStatus: workOrderLineItemConfirmationStatusEnum().notNull(),
   quantity: t.integer().notNull(),
   soldById: t.text(),
   productId: t
@@ -113,7 +122,7 @@ export const workOrderLineItem = pgTable("work_order_line_item", (t) => ({
     .integer()
     .references(() => workOrder.id)
     .notNull(),
-  installedById: t.integer().references(() => user.id),
+  installedById: t.text().references(() => user.id),
   ...baseFields,
 }));
 
