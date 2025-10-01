@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import type { InsertTerritory, UpdateTerritory } from "@safestreets/db/schema";
 import { db } from "@safestreets/db/client";
@@ -21,14 +21,7 @@ class TerritoryService {
   }
 
   async listTerritories(filters: territoryFilters) {
-    let conditions = [];
-    conditions.push(eq(territory.organizationId, "1"));
-
-    return db.query.territory.findMany({
-      limit: filters.limit ?? 50,
-      offset: filters.offset ?? 0,
-      where: and(...conditions),
-    });
+    return db.query.territory.findMany();
   }
 
   async createTerritory(t: InsertTerritory) {
