@@ -1,3 +1,4 @@
+import type z from "zod/v4";
 import { relations } from "drizzle-orm";
 import { pgEnum, pgTable } from "drizzle-orm/pg-core";
 import {
@@ -5,7 +6,6 @@ import {
   createSelectSchema,
   createUpdateSchema,
 } from "drizzle-zod";
-import z from "zod/v4";
 
 import { organization, user } from "./auth-schema";
 import { baseFields, baseFieldsReadOnly } from "./base-fields";

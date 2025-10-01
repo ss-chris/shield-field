@@ -1,10 +1,19 @@
 import { and, eq } from "drizzle-orm";
+import z from "zod";
 
 import type { InsertCustomer, UpdateCustomer } from "@safestreets/db/schema";
 import { db } from "@safestreets/db/client";
 import { customer } from "@safestreets/db/schema";
 
 import type { customerFilters, sfBilling } from "~/schema/customer";
+import type { contractProcessErrorResponse } from "~/schema/salesforce";
+import { env } from "~/env";
+import SalesforceService from "./salesforce";
+
+const salesforceService = await SalesforceService.initConnection(
+  env.SALESFORCE_STAGING_USERNAME,
+  env.SALESFORCE_STAGING_PASSWORD,
+);
 
 class CustomerService {
   async listCustomers(filters: customerFilters) {
@@ -53,8 +62,68 @@ class CustomerService {
   }
 
   async getBillingFromSf(accountId: string) {
-    return;
-    // TODO: either build sf service and login for SOQL query or setup kafka and billing object
+    const paymentQuery = `
+          SELECT
+            Id,
+            blng__Amount__c,
+            blng__Status__c
+          FROM blng__Payment__c
+          WHERE blng__Account__c = '${accountId}'
+        `;
+    const paymentResult = await salesforceService.query(paymentQuery);
+    const payments = paymentResult.records;
+
+    const paymentMethodQuery = `
+          SELECT
+            Id,
+            blng__Active__c,
+            blng__PaymentType__c,
+            blng__BankAccountName__c,
+            blng__BankName__c,
+            blng__CardExpirationMonth__c,
+            blng__CardExpirationYear__c,
+            blng__CardLastFour__c,
+            blng__CardType__c,
+            blng__Nameoncard__c
+          FROM blng__PaymentMethod__c
+          WHERE blng__Account__c = '${accountId}'
+        `;
+    const paymentMethodResult =
+      await salesforceService.query(paymentMethodQuery);
+    const paymentMethods = paymentMethodResult.records;
+
+    const loanQuery = `
+          SELECT
+            Id,
+            Status__c,
+            Finance_Partner__c,
+            Approval_Amount__c,
+            APR__c,
+            Term__c
+          FROM Loan__c
+          WHERE Account__c = '${accountId}'
+        `;
+    const loanResult = await salesforceService.query(loanQuery);
+    const loans = loanResult.records;
+
+    const paymentPlanQuery = `
+          SELECT
+            Id,
+            Equipment_Order__c,
+            Number_of_Payments__c,
+            Plan_Amount__c
+          FROM Payment_Plan__c
+          WHERE Account__c = '${accountId}'
+        `;
+    const paymentPlanResult = await salesforceService.query(paymentPlanQuery);
+    const paymentPlans = paymentPlanResult.records;
+
+    return {
+      payments: payments,
+      paymentMethods: paymentMethods,
+      loans: loans,
+      paymentPlans: paymentPlans,
+    };
   }
 
   async processPaymentInSF(payment: sfBilling) {
@@ -83,11 +152,19 @@ class CustomerService {
   async processContractsInSF(accountId: string) {
     const response = await fetch(
       `https://safestreets--staging.sandbox.my.salesforce.com/services/apexrest/ContractRestService/${accountId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${env.SALESFORCE_STAGING_TOKEN}`,
+        },
+      },
     );
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error("SF request failed - " + error);
+      const error: contractProcessErrorResponse = await response.json();
+      throw new Error(
+        "SF request failed - " + error.messages.map((m) => m.error).join(", "),
+      );
     }
 
     return response.json();

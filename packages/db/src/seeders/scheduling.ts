@@ -107,8 +107,12 @@ async function main() {
         name: f.valuesFromArray({
           values: ["2-Hour Slots", "4-Hour Slots", "All Day"],
         }),
-        durationMinutes: f.int({ minValue: 120, maxValue: 240 }),
-        stepMinutes: f.int({ minValue: 60, maxValue: 120 }),
+        durationMinutes: f.valuesFromArray({
+          values: [120, 240],
+        }),
+        stepMinutes: f.valuesFromArray({
+          values: [60, 120],
+        }),
       },
     },
     operatingHoursPolicy: {

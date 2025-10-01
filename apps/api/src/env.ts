@@ -10,6 +10,10 @@ export const env = createEnv({
     MICROSOFT_CLIENT_SECRET: z.string().length(40),
     MICROSOFT_TENANT_ID: z.string().length(36),
     AUTH_SECRET: z.string(),
+    SALESFORCE_STAGING_USERNAME: z.string(),
+    SALESFORCE_STAGING_PASSWORD: z.string(),
+    SALESFORCE_SANDBOX: z.string(),
+    SALESFORCE_STAGING_TOKEN: z.string(),
   },
   /**
    * What object holds the environment variables at runtime. This is usually

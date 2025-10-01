@@ -76,6 +76,7 @@ const customerRouter = new Hono()
 
   .get("/sf/billing/:id", async (c) => {
     const id = c.req.param("id");
+
     try {
       const billing = await customerService.getBillingFromSf(id);
       return c.json({ data: billing }, 200);
@@ -104,8 +105,8 @@ const customerRouter = new Hono()
       const response = await customerService.processContractsInSF(id);
       return c.json({ data: response }, 200);
     } catch (error) {
-      console.error("get Billing failed ", error);
-      return c.json({ error: "Unable to fetch billing" }, 500);
+      console.error("Unable to fetch billing - ", error);
+      return c.json({ error: "Unable to fetch billing - " + error }, 500);
     }
   });
 
