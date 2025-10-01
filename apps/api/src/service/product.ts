@@ -1,6 +1,6 @@
 import { db } from "@safestreets/db/client";
 
-import type { productFilters } from "~/schema/product";
+import type { productFilters } from "../schema/product";
 
 class ProductService {
   async listProducts(filters: productFilters) {

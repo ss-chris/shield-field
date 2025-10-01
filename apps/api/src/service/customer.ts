@@ -4,7 +4,7 @@ import type { InsertCustomer, UpdateCustomer } from "@safestreets/db/schema";
 import { db } from "@safestreets/db/client";
 import { customer } from "@safestreets/db/schema";
 
-import type { customerFilters, sfBilling } from "~/schema/customer";
+import type { customerFilters, sfBilling } from "../schema/customer";
 
 class CustomerService {
   async listCustomers(filters: customerFilters) {

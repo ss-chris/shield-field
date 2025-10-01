@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 
-import { SchedulingService } from "~/service/scheduling";
+import { SchedulingService } from "../service/scheduling";
 
 // ----- Slots Routes -------------- //
 

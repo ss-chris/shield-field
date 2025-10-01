@@ -6,8 +6,8 @@ import {
   updateCustomerSchema,
 } from "@safestreets/db/schema";
 
-import { customerFiltersInput, sfBillingInput } from "~/schema/customer";
-import CustomerService from "~/service/customer";
+import { customerFiltersInput, sfBillingInput } from "../schema/customer";
+import CustomerService from "../service/customer";
 
 const customerService = new CustomerService();
 

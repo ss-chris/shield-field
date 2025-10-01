@@ -6,8 +6,8 @@ import {
   updateWorkOrderSchema,
 } from "@safestreets/db/schema";
 
-import { workOrderFiltersInput } from "~/schema/workOrder";
-import WorkOrderService from "~/service/workOrder";
+import { workOrderFiltersInput } from "../schema/workOrder";
+import WorkOrderService from "../service/workOrder";
 
 const workOrderService = new WorkOrderService();
 

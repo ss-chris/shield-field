@@ -16,7 +16,7 @@ import {
   workOrderLineItemStatusEnum,
 } from "@safestreets/db/schema";
 
-import type { workOrderFilters } from "~/schema/workOrder";
+import type { workOrderFilters } from "../schema/workOrder";
 
 class WorkOrderService {
   async listWorkOrders(filters: workOrderFilters) {

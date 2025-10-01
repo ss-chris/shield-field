@@ -6,9 +6,9 @@ import {
   updateArrivalWindowTemplateSchema,
 } from "@safestreets/db/schema";
 
-import type { AppVariables } from "~/app";
-import { arrivalWindowTemplateFiltersInput } from "~/schema/arrivalWindowTemplate";
-import ArrivalWindowTemplateService from "~/service/arrivalWindowTemplate";
+import type { AppVariables } from "../app";
+import { arrivalWindowTemplateFiltersInput } from "../schema/arrivalWindowTemplate";
+import ArrivalWindowTemplateService from "../service/arrivalWindowTemplate";
 
 // ---------------------------------------------------------------------------- //
 
