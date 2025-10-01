@@ -7,7 +7,7 @@ import {
   createUpdateSchema,
 } from "drizzle-zod";
 
-import { organization } from "./auth-schema";
+import { organization } from "./auth";
 import { baseFields } from "./base-fields";
 import { location } from "./locations";
 import { customer, workOrder } from "./operations";

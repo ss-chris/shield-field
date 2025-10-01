@@ -7,7 +7,7 @@ import {
   createUpdateSchema,
 } from "drizzle-zod";
 
-import { organization, user } from "./auth-schema";
+import { organization, user } from "./auth";
 import { baseFields, baseFieldsReadOnly } from "./base-fields";
 import { operatingHoursPolicy } from "./scheduling";
 
