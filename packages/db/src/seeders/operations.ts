@@ -13,7 +13,7 @@ import {
   workOrderHistory,
   workOrderLineItem,
 } from "~/schema";
-import * as auth from "~/schematics/auth-schema";
+import * as auth from "~/schematics/auth";
 import * as inventory from "~/schematics/inventory";
 import * as locations from "~/schematics/locations";
 import * as operations from "~/schematics/operations";

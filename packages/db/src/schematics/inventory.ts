@@ -7,7 +7,7 @@ import {
 } from "drizzle-zod";
 import { z } from "zod/v4";
 
-import { user } from "./auth-schema";
+import { user } from "./auth";
 import { baseFields } from "./base-fields";
 import { location } from "./locations";
 import { workOrder } from "./operations";

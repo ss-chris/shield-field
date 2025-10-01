@@ -7,7 +7,7 @@ import type {
 import { db } from "@safestreets/db/client";
 import { workOrderLineItem } from "@safestreets/db/schema";
 
-import type { workOrderLineItemFilters } from "~/schema/workOrderLineItem";
+import type { workOrderLineItemFilters } from "../schema/workOrderLineItem";
 
 class WorkOrderLineItemService {
   async listWorkOrderLineItems(filters: workOrderLineItemFilters) {

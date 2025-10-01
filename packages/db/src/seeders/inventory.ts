@@ -15,7 +15,7 @@ import {
   warehouseProduct,
   warehouseProductTransaction,
 } from "~/schema";
-import * as auth from "~/schematics/auth-schema";
+import * as auth from "~/schematics/auth";
 import * as inventory from "~/schematics/inventory";
 import * as locations from "~/schematics/locations";
 import { STATE_CODES_TO_NAMES } from "~/utils/staticFields";

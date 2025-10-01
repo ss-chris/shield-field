@@ -34,7 +34,7 @@ import type {
   warehouseFilters,
   warehouseProductFilters,
   warehouseProductTransactionFilters,
-} from "~/schema/inventory";
+} from "../schema/inventory";
 
 class InventoryService {
   async listWarehouses(filters: warehouseFilters) {

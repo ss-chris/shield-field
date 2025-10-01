@@ -1,4 +1,4 @@
-export * from "./schematics/auth-schema";
+export * from "./schematics/auth";
 export * from "./schematics/inventory";
 export * from "./schematics/locations";
 export * from "./schematics/operations";

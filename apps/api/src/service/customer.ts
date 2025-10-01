@@ -5,9 +5,9 @@ import type { InsertCustomer, UpdateCustomer } from "@safestreets/db/schema";
 import { db } from "@safestreets/db/client";
 import { customer } from "@safestreets/db/schema";
 
-import type { customerFilters, sfBilling } from "~/schema/customer";
-import type { contractProcessErrorResponse } from "~/schema/salesforce";
-import { env } from "~/env";
+import type { customerFilters, sfBilling } from "../schema/customer";
+import type { contractProcessErrorResponse } from "../schema/salesforce";
+import { env } from "../env";
 import SalesforceService from "./salesforce";
 
 const salesforceService = await SalesforceService.initConnection(

@@ -6,8 +6,8 @@ import {
   updateAppointmentSchema,
 } from "@safestreets/db/schema";
 
-import { appointmentFiltersInput } from "~/schema/appointment";
-import AppointmentService from "~/service/appointment";
+import { appointmentFiltersInput } from "../schema/appointment";
+import AppointmentService from "../service/appointment";
 
 const appointmentService = new AppointmentService();
 

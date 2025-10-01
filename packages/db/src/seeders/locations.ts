@@ -11,7 +11,7 @@ import {
   territory,
   user,
 } from "~/schema";
-import * as auth from "~/schematics/auth-schema";
+import * as auth from "~/schematics/auth";
 import * as locations from "~/schematics/locations";
 import { STATE_CODES_TO_NAMES } from "~/utils/staticFields";
 

@@ -7,7 +7,7 @@ import type {
 import { db } from "@safestreets/db/client";
 import { appointment } from "@safestreets/db/schema";
 
-import type { appointmentFilters } from "~/schema/appointment";
+import type { appointmentFilters } from "../schema/appointment";
 
 class AppointmentService {
   async listAppointments(filters: appointmentFilters) {

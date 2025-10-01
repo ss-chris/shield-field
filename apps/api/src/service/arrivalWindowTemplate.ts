@@ -4,7 +4,7 @@ import type { InsertArrivalWindowTemplate } from "@safestreets/db/schema";
 import { db } from "@safestreets/db/client";
 import { arrivalWindowTemplate } from "@safestreets/db/schema";
 
-import type { arrivalWindowTemplateFilters } from "~/schema/arrivalWindowTemplate";
+import type { arrivalWindowTemplateFilters } from "../schema/arrivalWindowTemplate";
 
 class ArrivalWindowTemplateService {
   async listArrivalWindowTemplates(filters: arrivalWindowTemplateFilters) {
