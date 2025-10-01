@@ -12,7 +12,7 @@ import {
   user,
   verification,
 } from "~/schema";
-import * as auth from "~/schematics/auth-schema";
+import * as auth from "~/schematics/auth";
 
 async function main() {
   const url = env.PRIMARY_DATABASE_URL;

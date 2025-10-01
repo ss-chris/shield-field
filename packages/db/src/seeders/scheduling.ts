@@ -15,7 +15,7 @@ import {
   user,
   workOrder,
 } from "~/schema";
-import * as auth from "~/schematics/auth-schema";
+import * as auth from "~/schematics/auth";
 import * as locations from "~/schematics/locations";
 import * as operations from "~/schematics/operations";
 import * as scheduling from "~/schematics/scheduling";
