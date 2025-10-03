@@ -2,12 +2,12 @@ import type { ConfigContext, ExpoConfig } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "expo",
-  slug: "expo",
-  scheme: "expo",
+  name: "Shield Field",
+  slug: "shieldfield",
+  scheme: "shieldfield",
   version: "0.1.0",
   orientation: "portrait",
-  icon: "./assets/icon-light.png",
+  icon: "./assets/icon.png",
   userInterfaceStyle: "automatic",
   updates: {
     fallbackToCacheTimeout: 0,
@@ -15,17 +15,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   newArchEnabled: true,
   assetBundlePatterns: ["**/*"],
   ios: {
-    bundleIdentifier: "your.bundle.identifier",
+    bundleIdentifier: "com.safestreets.shieldfield",
     supportsTablet: true,
     icon: {
-      light: "./assets/icon-light.png",
-      dark: "./assets/icon-dark.png",
+      light: "./assets/icon.png",
+      dark: "./assets/icon.png",
     },
   },
   android: {
-    package: "your.bundle.identifier",
+    package: "com.safestreets.shieldfield",
     adaptiveIcon: {
-      foregroundImage: "./assets/icon-light.png",
+      foregroundImage: "./assets/icon.png",
       backgroundColor: "#1F104A",
     },
     edgeToEdgeEnabled: true,
@@ -47,10 +47,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "expo-splash-screen",
       {
         backgroundColor: "#E4E4E7",
-        image: "./assets/icon-light.png",
+        image: "./assets/icon.png",
         dark: {
           backgroundColor: "#18181B",
-          image: "./assets/icon-dark.png",
+          image: "./assets/icon.png",
         },
       },
     ],

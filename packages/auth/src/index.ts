@@ -51,7 +51,12 @@ export function initAuth(options: {
         enabled: true,
       },
     },
-    trustedOrigins: ["expo://", "shieldfield://", "http://localhost:5173"],
+    trustedOrigins: [
+      "exp://",
+      "expo://",
+      "shieldfield://",
+      "http://localhost:5173",
+    ],
     advanced: {
       defaultCookieAttributes: {
         sameSite: "none",
