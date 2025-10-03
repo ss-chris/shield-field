@@ -17,7 +17,11 @@ import * as auth from "~/schematics/auth";
 import * as inventory from "~/schematics/inventory";
 import * as locations from "~/schematics/locations";
 import * as operations from "~/schematics/operations";
-import { STATE_CODES_TO_NAMES } from "~/utils/staticFields";
+import {
+  ACCOUNT_IDS_STAGING,
+  CONTACT_IDS_STAGING,
+  STATE_CODES_TO_NAMES,
+} from "~/utils/staticFields";
 
 async function main() {
   const url = env.PRIMARY_DATABASE_URL;
@@ -98,14 +102,19 @@ async function main() {
     },
     customer: {
       columns: {
-        externalId: f.uuid(),
+        externalId: f.valuesFromArray({
+          values: ACCOUNT_IDS_STAGING,
+          isUnique: true,
+        }),
         confirmationNumber: f.int({ minValue: 11111, maxValue: 99999 }),
         status: f.valuesFromArray({
           values: operations.customerStatusEnum.enumValues,
         }),
         source: f.default({ defaultValue: "SafeStreets" }),
         sourceDate: f.date(),
-        soldById: f.uuid(),
+        soldById: f.valuesFromArray({
+          values: CONTACT_IDS_STAGING,
+        }),
         installDate: f.date(),
       },
     },
@@ -144,6 +153,7 @@ async function main() {
         confirmationStatus: f.valuesFromArray({
           values: operations.workOrderLineItemConfirmationStatusEnum.enumValues,
         }),
+        unitPrice: f.number({ minValue: 0, maxValue: 360, precision: 100 }),
         quantity: f.int({ minValue: 1, maxValue: 5 }),
         soldById: f.uuid(),
       },

@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import type {
   InsertWarehouseProductTransaction,
@@ -8,6 +8,8 @@ import type {
 } from "@safestreets/db/schema";
 import { db } from "@safestreets/db/client";
 import {
+  customer,
+  product,
   warehouse,
   warehouseProduct,
   warehouseProductTransaction,
@@ -16,7 +18,15 @@ import {
   workOrderLineItemStatusEnum,
 } from "@safestreets/db/schema";
 
+import type { Order, OrderItem, PricebookEntry } from "../schema/salesforce";
 import type { workOrderFilters } from "../schema/workOrder";
+import { env } from "../env";
+import SalesforceService from "./salesforce";
+
+const salesforceService = await SalesforceService.initConnection(
+  env.SALESFORCE_STAGING_USERNAME,
+  env.SALESFORCE_STAGING_PASSWORD,
+);
 
 class WorkOrderService {
   async listWorkOrders(filters: workOrderFilters) {
@@ -141,6 +151,104 @@ class WorkOrderService {
       }
       await tx.insert(warehouseProductTransaction).values(wptCreates);
     });
+  }
+
+  async createCloseOutOrderInSF(workOrderId: number) {
+    const [wo] = await db
+      .select()
+      .from(workOrder)
+      .where(eq(workOrder.id, workOrderId))
+      .limit(1);
+    const [c] = await db
+      .select()
+      .from(customer)
+      .where(eq(customer.id, wo.customerId))
+      .limit(1);
+    const wolis = await db
+      .select()
+      .from(workOrderLineItem)
+      .where(eq(workOrderLineItem.workOrderId, workOrderId));
+    const products = await db
+      .select()
+      .from(product)
+      .where(
+        inArray(
+          product.id,
+          wolis.map((w) => w.productId),
+        ),
+      );
+
+    const productIdList = products.map((p) => `'${p.externalId}'`).join(", ");
+    const pricebookQuery = `
+          SELECT
+            Id,
+            Product2Id
+          FROM PricebookEntry
+          WHERE Product2Id IN (${productIdList})
+        `;
+    const pricebookResult = await salesforceService.query(pricebookQuery);
+    const pricebooks = pricebookResult.records as PricebookEntry[];
+    console.log("pricebooks from query", pricebooks);
+
+    // create order
+    const upsertOrder: Order = {
+      AccountId: c.externalId,
+      Pricebook2Id: "01s4P000003naicQAA", // standard pricebook
+      Status: "Draft",
+      RecordTypeId: "0124P000000hVuwQAE", // close out order
+      ExternalId__c: workOrderId.toString(),
+      EffectiveDate: Date.now().toString(),
+    };
+
+    const newOrder = await salesforceService.upsertSObject(
+      "Order",
+      "ExternalId__c",
+      upsertOrder,
+    );
+    if (!newOrder.id) {
+      throw new Error("Failed to create close out order");
+    }
+
+    // create order items
+    let upsertOrderItems = [];
+    for (const woli of wolis) {
+      const p = products.find((p) => p.id === woli.productId);
+      const pb = pricebooks.find((pb) => pb.Product2Id === p?.externalId);
+
+      if (!p) {
+        throw new Error("Failed to set order item, product is undefined");
+      }
+      if (!pb?.Id) {
+        throw new Error("Failed to set order item, pricebook id is undefined");
+      }
+
+      const orderItem: OrderItem = {
+        Quantity: woli.quantity,
+        UnitPrice: woli.unitPrice,
+        OrderId: newOrder.id,
+        Product2Id: p.externalId,
+        Installation_Status__c: "Not Installed",
+        External_Id__c: woli.id.toString(),
+        PricebookEntryId: pb.Id,
+      };
+      upsertOrderItems.push(orderItem);
+    }
+    console.log("order items to upsert", upsertOrderItems);
+    const result = await salesforceService.upsertSObjects(
+      "OrderItem",
+      "External_Id__c",
+      upsertOrderItems,
+    );
+    console.log("upsert result", result);
+    const newOrderItems = result.map((r) => r.id);
+    if (result.length == 0) {
+      throw new Error("Failed to upsert order items");
+    }
+    console.log("mapped ids from result", newOrderItems);
+
+    console.log(
+      `Upserted order with id ${newOrder.id}, and upserted order items with ids ${newOrderItems.join(", ")}`,
+    );
   }
 }
 

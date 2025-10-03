@@ -70,6 +70,18 @@ const workOrderRouter = new Hono()
       console.error("get workOrder failed ", error);
       return c.json({ error: "Unable to update WorkOrder" }, 500);
     }
+  })
+  
+  .post("/sf/close-out-order/:orderId", async (c) => {
+    const id = c.req.param("orderId");
+
+    try {
+      const result = await orderService.createCloseOutOrderInSF(Number(id));
+      return c.json({ data: result }, 200);
+    } catch (error) {
+      console.error("create order failed", error);
+      return c.json({ error: "Unable to create Order: " + error }, 500);
+    }
   });
 
 export default workOrderRouter;

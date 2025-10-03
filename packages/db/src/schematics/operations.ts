@@ -78,7 +78,10 @@ export const customer = pgTable("customer", (t) => ({
   sourceDate: t.date(),
   soldById: t.text(),
   installDate: t.date(),
-  locationId: t.integer().references(() => location.id),
+  locationId: t
+    .integer()
+    .references(() => location.id)
+    .notNull(),
   organizationId: t.text().references(() => organization.id),
   ...baseFields,
 }));
@@ -113,6 +116,7 @@ export const workOrderLineItem = pgTable("work_order_line_item", (t) => ({
   status: workOrderLineItemStatusEnum().notNull(),
   confirmationStatus: workOrderLineItemConfirmationStatusEnum().notNull(),
   quantity: t.integer().notNull(),
+  unitPrice: t.numeric({ precision: 10, scale: 2, mode: "number" }).notNull(),
   soldById: t.text(),
   productId: t
     .integer()
@@ -158,7 +162,12 @@ export const workOrderRelations = relations(workOrder, ({ one, many }) => ({
     fields: [workOrder.organizationId],
     references: [organization.id],
   }),
+  customer: one(customer, {
+    fields: [workOrder.customerId],
+    references: [customer.id],
+  }),
   history: many(workOrderHistory),
+  workOrderLineItems: many(workOrderLineItem),
 }));
 
 export const workOrderHistoryRelations = relations(
