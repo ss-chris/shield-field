@@ -1,79 +1,77 @@
+import dayjs from "dayjs";
 import { and, eq, inArray } from "drizzle-orm";
 
 import type {
+  InsertOrder,
   InsertWarehouseProductTransaction,
-  InsertWorkOrder,
-  SelectWorkOrder,
-  UpdateWorkOrder,
+  SelectOrder,
+  UpdateOrder,
 } from "@safestreets/db/schema";
 import { db } from "@safestreets/db/client";
 import {
   customer,
+  order,
+  orderProduct,
+  orderProductStatusEnum,
   product,
   warehouse,
   warehouseProduct,
   warehouseProductTransaction,
-  workOrder,
-  workOrderLineItem,
-  workOrderLineItemStatusEnum,
 } from "@safestreets/db/schema";
 
-import type { Order, OrderItem, PricebookEntry } from "../schema/salesforce";
-import type { workOrderFilters } from "../schema/workOrder";
+import type { orderFilters } from "../schema/order";
+import type { OrderItem, PricebookEntry, SFOrder } from "../schema/salesforce";
 import { env } from "../env";
 import SalesforceService from "./salesforce";
+
+const STANDARD_PRICEBOOK_ID = "01s4P000003naicQAA";
+const CLOSE_OUR_ORDER_RECORD_TYPE_ID = "0124P000000hVuwQAE";
 
 const salesforceService = await SalesforceService.initConnection(
   env.SALESFORCE_STAGING_USERNAME,
   env.SALESFORCE_STAGING_PASSWORD,
 );
 
-class WorkOrderService {
-  async listWorkOrders(filters: workOrderFilters) {
+class OrderService {
+  async listOrders(filters: orderFilters) {
     let conditions = [];
     if (filters.id) {
-      conditions.push(eq(workOrder.id, filters.id));
+      conditions.push(eq(order.id, filters.id));
     }
 
-    return db.query.workOrder.findMany({
+    return db.query.order.findMany({
       limit: filters.limit ?? 50,
       offset: filters.offset ?? 0,
       where: and(...conditions),
     });
   }
 
-  async getWorkOrder(id: number) {
-    const [result] = await db
-      .select()
-      .from(workOrder)
-      .where(eq(workOrder.id, id));
+  async getOrder(id: number) {
+    const [result] = await db.select().from(order).where(eq(order.id, id));
 
     if (!result) {
-      throw new Error(`WorkOrder with id ${id} not found`);
+      throw new Error(`Order with id ${id} not found`);
     }
 
     return result;
   }
 
-  async createWorkOrder(w: InsertWorkOrder) {
-    const [result] = await db.insert(workOrder).values(w).returning();
+  async createOrder(w: InsertOrder) {
+    const [result] = await db.insert(order).values(w).returning();
     return result;
   }
 
-  async updateWorkOrder(w: UpdateWorkOrder, id: number) {
-    const [previous] = await db
-      .select()
-      .from(workOrder)
-      .where(eq(workOrder.id, id));
+  async updateOrder(w: UpdateOrder, id: number) {
+    const [previous] = await db.select().from(order).where(eq(order.id, id));
 
     const [result] = await db
-      .update(workOrder)
+      .update(order)
       .set(w)
-      .where(eq(workOrder.id, id))
+      .where(eq(order.id, id))
       .returning();
 
     if (!result) {
-      throw new Error(`WorkOrder with id ${id} not found`);
+      throw new Error(`Order with id ${id} not found`);
     }
 
     // consume inventory if completed
@@ -84,7 +82,7 @@ class WorkOrderService {
     return result;
   }
 
-  async processInventory(w: SelectWorkOrder) {
+  async processInventory(w: SelectOrder) {
     const [userWarehouse] = await db
       .select()
       .from(warehouse)
@@ -95,12 +93,12 @@ class WorkOrderService {
       .where(eq(warehouseProduct.warehouseId, userWarehouse.id));
     const wolis = await db
       .select()
-      .from(workOrderLineItem)
-      .where(eq(workOrderLineItem.workOrderId, w.id));
+      .from(orderProduct)
+      .where(eq(orderProduct.orderId, w.id));
 
     let wpUpdateMap = new Map();
     let wptCreates = [];
-    const nonConsumptionStatuses: (typeof workOrderLineItemStatusEnum.enumValues)[number][] =
+    const nonConsumptionStatuses: (typeof orderProductStatusEnum.enumValues)[number][] =
       ["canceled_not_used", "ordered_out_of_stock"];
 
     for (const lineItem of wolis) {
@@ -137,7 +135,7 @@ class WorkOrderService {
         quantity: -lineItem.quantity,
         productId: lineItem.productId,
         sourceWarehouseId: userWarehouse.id,
-        destinationWorkOrderId: w.id,
+        destinationOrderId: w.id,
       };
       wptCreates.push(wpt);
     }
@@ -153,53 +151,37 @@ class WorkOrderService {
     });
   }
 
-  async createCloseOutOrderInSF(workOrderId: number) {
-    const [wo] = await db
-      .select()
-      .from(workOrder)
-      .where(eq(workOrder.id, workOrderId))
-      .limit(1);
-    const [c] = await db
-      .select()
-      .from(customer)
-      .where(eq(customer.id, wo.customerId))
-      .limit(1);
-    const wolis = await db
-      .select()
-      .from(workOrderLineItem)
-      .where(eq(workOrderLineItem.workOrderId, workOrderId));
-    const products = await db
-      .select()
-      .from(product)
-      .where(
-        inArray(
-          product.id,
-          wolis.map((w) => w.productId),
-        ),
-      );
-
-    const productIdList = products.map((p) => `'${p.externalId}'`).join(", ");
-    const pricebookQuery = `
-          SELECT
-            Id,
-            Product2Id
-          FROM PricebookEntry
-          WHERE Product2Id IN (${productIdList})
-        `;
-    const pricebookResult = await salesforceService.query(pricebookQuery);
-    const pricebooks = pricebookResult.records as PricebookEntry[];
-    console.log("pricebooks from query", pricebooks);
+  async createCloseOutOrderInSF(orderId: number) {
+    const o = await db.query.order.findFirst({
+      where: eq(order.id, orderId),
+      with: {
+        orderProducts: {
+          with: {
+            product: true,
+          },
+        },
+        customer: true,
+      },
+    });
+    if (!o) {
+      throw new Error(`no order found with id: ${orderId}`);
+    }
+    const productIdList = o.orderProducts
+      .map((op) => `'${op.product.externalId}'`)
+      .join(", ");
+    const pricebooks = await this.getPricebooksByProductIds(productIdList);
+    const existingOrder = await this.getOrderByExternalId(orderId.toString());
 
     // create order
-    const upsertOrder: Order = {
-      AccountId: c.externalId,
-      Pricebook2Id: "01s4P000003naicQAA", // standard pricebook
+    const upsertOrder: SFOrder = {
+      AccountId: o.customer.externalId,
+      Pricebook2Id: STANDARD_PRICEBOOK_ID,
       Status: "Draft",
-      RecordTypeId: "0124P000000hVuwQAE", // close out order
-      ExternalId__c: workOrderId.toString(),
-      EffectiveDate: Date.now().toString(),
+      RecordTypeId: CLOSE_OUR_ORDER_RECORD_TYPE_ID,
+      ExternalId__c: orderId.toString(),
+      EffectiveDate:
+        existingOrder?.EffectiveDate ?? dayjs(new Date()).format("YYYY-MM-DD"),
     };
-
     const newOrder = await salesforceService.upsertSObject(
       "Order",
       "ExternalId__c",
@@ -211,45 +193,55 @@ class WorkOrderService {
 
     // create order items
     let upsertOrderItems = [];
-    for (const woli of wolis) {
-      const p = products.find((p) => p.id === woli.productId);
-      const pb = pricebooks.find((pb) => pb.Product2Id === p?.externalId);
-
-      if (!p) {
-        throw new Error("Failed to set order item, product is undefined");
-      }
+    for (const op of o.orderProducts) {
+      const pb = pricebooks.find(
+        (pb) => pb.Product2Id === op.product.externalId,
+      );
       if (!pb?.Id) {
         throw new Error("Failed to set order item, pricebook id is undefined");
       }
-
       const orderItem: OrderItem = {
-        Quantity: woli.quantity,
-        UnitPrice: woli.unitPrice,
+        Quantity: op.quantity,
+        UnitPrice: op.unitPrice,
         OrderId: newOrder.id,
-        Product2Id: p.externalId,
+        Product2Id: op.product.externalId,
         Installation_Status__c: "Not Installed",
-        External_Id__c: woli.id.toString(),
+        External_Id__c: op.id.toString(),
         PricebookEntryId: pb.Id,
       };
       upsertOrderItems.push(orderItem);
     }
-    console.log("order items to upsert", upsertOrderItems);
-    const result = await salesforceService.upsertSObjects(
+    await salesforceService.upsertSObjects(
       "OrderItem",
       "External_Id__c",
       upsertOrderItems,
     );
-    console.log("upsert result", result);
-    const newOrderItems = result.map((r) => r.id);
-    if (result.length == 0) {
-      throw new Error("Failed to upsert order items");
-    }
-    console.log("mapped ids from result", newOrderItems);
+  }
 
-    console.log(
-      `Upserted order with id ${newOrder.id}, and upserted order items with ids ${newOrderItems.join(", ")}`,
-    );
+  async getPricebooksByProductIds(ids: string) {
+    const pricebookQuery = `
+          SELECT
+            Id,
+            Product2Id
+          FROM PricebookEntry
+          WHERE Product2Id IN (${ids})
+        `;
+    const pricebookResult = await salesforceService.query(pricebookQuery);
+    return pricebookResult.records as PricebookEntry[];
+  }
+
+  async getOrderByExternalId(id: string) {
+    const orderQuery = `
+          SELECT
+            Id,
+            ExternalId__c,
+            EffectiveDate
+          FROM Order
+          WHERE ExternalId__c = '${id}'
+        `;
+    const orderResult = await salesforceService.query(orderQuery);
+    return orderResult.records[0] as SFOrder;
   }
 }
 
-export default WorkOrderService;
+export default OrderService;

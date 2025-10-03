@@ -12,13 +12,13 @@ import customerRouter from "./route/customer";
 import inventoryRouter from "./route/inventory";
 import operatingHoursPolicyRouter from "./route/operatingHoursPolicy";
 import operatingHoursPolicyRuleRouter from "./route/operatingHoursPolicyRule";
+import orderRouter from "./route/order";
+import orderProductRouter from "./route/orderProduct";
 import productRouter from "./route/product";
 import schedulingRouter from "./route/scheduling";
 import schedulingPolicyRouter from "./route/schedulingPolicy";
 import territoryRouter from "./route/territory";
 import userRouter from "./route/user";
-import workOrderRouter from "./route/workOrder";
-import workOrderLineItemRouter from "./route/workOrderLineItem";
 
 const auth = initAuth({
   baseUrl: "http://localhost:5173",
@@ -93,7 +93,7 @@ export const app = new Hono<{
   .route("/scheduling-policy", schedulingPolicyRouter)
   .route("/territory", territoryRouter)
   .route("/user", userRouter)
-  .route("/work-order", workOrderRouter)
-  .route("/work-order-line-item", workOrderLineItemRouter);
+  .route("/order", orderRouter)
+  .route("/order-product", orderProductRouter);
 
 export type App = typeof app;

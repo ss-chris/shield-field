@@ -10,7 +10,7 @@ import {
 import { organization } from "./auth";
 import { baseFields } from "./base-fields";
 import { location } from "./locations";
-import { customer, workOrder } from "./operations";
+import { customer, order } from "./operations";
 
 // ============== Enums ==============
 
@@ -31,7 +31,7 @@ export const appointment = pgTable("appointment", (t) => ({
   status: appointmentStatusEnum().notNull(),
   locationId: t.integer().references(() => location.id),
   customerId: t.integer().references(() => customer.id),
-  workOrderId: t.integer().references(() => workOrder.id),
+  orderId: t.integer().references(() => order.id),
   organizationId: t.text().references(() => organization.id),
   ...baseFields,
 }));

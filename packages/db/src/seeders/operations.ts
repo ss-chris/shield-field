@@ -6,12 +6,12 @@ import {
   address,
   customer,
   location,
+  order,
+  orderHistory,
+  orderProduct,
   organization,
   product,
   user,
-  workOrder,
-  workOrderHistory,
-  workOrderLineItem,
 } from "~/schema";
 import * as auth from "~/schematics/auth";
 import * as inventory from "~/schematics/inventory";
@@ -20,6 +20,7 @@ import * as operations from "~/schematics/operations";
 import {
   ACCOUNT_IDS_STAGING,
   CONTACT_IDS_STAGING,
+  PRODUCT_IDS_STAGING,
   STATE_CODES_TO_NAMES,
 } from "~/utils/staticFields";
 
@@ -31,10 +32,10 @@ async function main() {
   await reset(db, {
     organization,
     user,
-    workOrder,
-    workOrderHistory,
+    order,
+    orderHistory,
     customer,
-    workOrderLineItem,
+    orderProduct,
     product,
     location,
     address,
@@ -43,10 +44,10 @@ async function main() {
   await seed(db, {
     organization: auth.organization,
     user: auth.user,
-    workOrder: operations.workOrder,
-    workOrderHistory: operations.workOrderHistory,
+    order: operations.order,
+    orderHistory: operations.orderHistory,
     customer: operations.customer,
-    workOrderLineItem: operations.workOrderLineItem,
+    orderProduct: operations.orderProduct,
     product: inventory.product,
     location: locations.location,
     address: locations.address,
@@ -120,19 +121,21 @@ async function main() {
     },
     product: {
       columns: {
-        externalId: f.uuid(),
+        externalId: f.valuesFromArray({
+          values: PRODUCT_IDS_STAGING,
+        }),
         name: f.valuesFromArray({
           values: ["camera", "doorbell", "sensor"],
         }),
       },
     },
-    workOrder: {
+    order: {
       columns: {
         type: f.valuesFromArray({
-          values: operations.workOrderTypeEnum.enumValues,
+          values: operations.orderTypeEnum.enumValues,
         }),
         status: f.valuesFromArray({
-          values: operations.workOrderStatusEnum.enumValues,
+          values: operations.orderStatusEnum.enumValues,
         }),
         source: f.valuesFromArray({
           values: ["client", "shnield fjield", "aliens"],
@@ -145,20 +148,20 @@ async function main() {
         navigationNote: f.default({ defaultValue: null }),
       },
     },
-    workOrderLineItem: {
+    orderProduct: {
       columns: {
         status: f.valuesFromArray({
-          values: operations.workOrderLineItemStatusEnum.enumValues,
+          values: operations.orderProductStatusEnum.enumValues,
         }),
         confirmationStatus: f.valuesFromArray({
-          values: operations.workOrderLineItemConfirmationStatusEnum.enumValues,
+          values: operations.orderProductConfirmationStatusEnum.enumValues,
         }),
         unitPrice: f.number({ minValue: 0, maxValue: 360, precision: 100 }),
         quantity: f.int({ minValue: 1, maxValue: 5 }),
         soldById: f.uuid(),
       },
     },
-    workOrderHistory: {
+    orderHistory: {
       columns: {
         dateTime: f.default({ defaultValue: new Date() }),
         fieldChanged: f.valuesFromArray({

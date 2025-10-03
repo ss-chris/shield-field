@@ -10,10 +10,10 @@ import {
   location,
   operatingHoursPolicy,
   operatingHoursPolicyRule,
+  order,
   organization,
   schedulingPolicy,
   user,
-  workOrder,
 } from "~/schema";
 import * as auth from "~/schematics/auth";
 import * as locations from "~/schematics/locations";
@@ -34,7 +34,7 @@ async function main() {
     schedulingPolicy,
     appointment,
     customer,
-    workOrder,
+    order,
     location,
     address,
     user,
@@ -48,7 +48,7 @@ async function main() {
     schedulingPolicy: scheduling.schedulingPolicy,
     appointment: scheduling.appointment,
     customer: operations.customer,
-    workOrder: operations.workOrder,
+    order: operations.order,
     location: locations.location,
     address: locations.address,
     user: auth.user,
@@ -159,13 +159,13 @@ async function main() {
         installDate: f.date(),
       },
     },
-    workOrder: {
+    order: {
       columns: {
         type: f.valuesFromArray({
-          values: operations.workOrderTypeEnum.enumValues,
+          values: operations.orderTypeEnum.enumValues,
         }),
         status: f.valuesFromArray({
-          values: operations.workOrderStatusEnum.enumValues,
+          values: operations.orderStatusEnum.enumValues,
         }),
         source: f.valuesFromArray({
           values: ["client", "shnield fjield", "aliens"],

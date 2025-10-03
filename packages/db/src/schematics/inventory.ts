@@ -10,7 +10,7 @@ import { z } from "zod/v4";
 import { user } from "./auth";
 import { baseFields } from "./base-fields";
 import { location } from "./locations";
-import { workOrder } from "./operations";
+import { order } from "./operations";
 
 // ============== Enums ==============
 
@@ -92,9 +92,9 @@ export const warehouseProductTransaction = pgTable(
     quantity: t.integer().notNull(),
     productId: t.integer().references(() => product.id),
     sourceWarehouseId: t.integer().references(() => warehouse.id),
-    sourceWorkOrderId: t.integer().references(() => workOrder.id),
+    sourceOrderId: t.integer().references(() => order.id),
     destinationWarehouseId: t.integer().references(() => warehouse.id),
-    destinationWorkOrderId: t.integer().references(() => workOrder.id),
+    destinationOrderId: t.integer().references(() => order.id),
     ...baseFields,
   }),
 );
@@ -210,17 +210,17 @@ export const warehouseProductTransactionRelations = relations(
       fields: [warehouseProductTransaction.sourceWarehouseId],
       references: [warehouse.id],
     }),
-    sourceWorkOrder: one(workOrder, {
-      fields: [warehouseProductTransaction.sourceWorkOrderId],
-      references: [workOrder.id],
+    sourceOrder: one(order, {
+      fields: [warehouseProductTransaction.sourceOrderId],
+      references: [order.id],
     }),
     destinationWarehouse: one(warehouse, {
       fields: [warehouseProductTransaction.destinationWarehouseId],
       references: [warehouse.id],
     }),
-    destinationWorkOrder: one(workOrder, {
-      fields: [warehouseProductTransaction.destinationWorkOrderId],
-      references: [workOrder.id],
+    destinationOrder: one(order, {
+      fields: [warehouseProductTransaction.destinationOrderId],
+      references: [order.id],
     }),
   }),
 );
